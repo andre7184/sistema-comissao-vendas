@@ -29,7 +29,7 @@ export default function VendedoresPage() {
   const fetchVendedores = async () => {
     setLoading(true);
     try {
-      const data = await adminService.listarVendedores(); // [cite: 166]
+      const data = await adminService.listarVendedores(); //
       setVendedores(data);
     } catch (err) {
       console.error("Erro ao buscar vendedores:", err);
@@ -70,18 +70,21 @@ export default function VendedoresPage() {
       if (editandoVendedor) {
         // ATUALIZAR (PUT)
         const updateData: VendedorUpdateRequestDTO = {
-          percentualComissao: data.percentualComissao // 
+          nome: data.nome, // Agora enviamos o nome na edição
+          email: data.email, // Agora enviamos o email na edição
+          percentualComissao: data.percentualComissao 
         };
-        await adminService.atualizarComissaoVendedor(editandoVendedor.id, updateData); // [cite: 177]
+        // A chamada ao serviço usa o DTO completo VendedorUpdateRequestDTO
+        await adminService.atualizarComissaoVendedor(editandoVendedor.id, updateData); //
       
       } else {
         // CADASTRAR (POST)
         const createData: VendedorRequestDTO = {
           nome: data.nome,
           email: data.email,
-          percentualComissao: data.percentualComissao // [cite: 145]
+          percentualComissao: data.percentualComissao //
         };
-        const response = await adminService.cadastrarVendedor(createData); // [cite: 143]
+        const response = await adminService.cadastrarVendedor(createData); //
         
         // Mostrar a senha temporária 
         setSenhaGerada({nome: response.nome, senha: response.senhaTemporaria});
@@ -179,7 +182,7 @@ export default function VendedoresPage() {
                       onClick={() => handleOpenModalEdicao(vendedor)}
                       className="text-blue-600 hover:text-blue-800 font-medium"
                     >
-                      Editar Comissão
+                      Editar
                     </button>
                   </td>
                 </tr>

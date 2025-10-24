@@ -19,6 +19,9 @@ const formatarData = (dataISO: string) => {
   }
 };
 
+// REMOVIDO: interface VendaFormData extends VendaRequestDTO { vendedorSelecionadoNome: string; }
+
+
 export default function VendasPage() {
   const [vendas, setVendas] = useState<Venda[]>([]);
   const [vendedores, setVendedores] = useState<Vendedor[]>([]); // Para o form
@@ -61,13 +64,15 @@ export default function VendasPage() {
     setFormError(null);
   };
 
-  // Função chamada pelo VendaForm no submit
-  const handleSubmit = async (data: VendaRequestDTO) => {
+  // Função chamada pelo VendaForm no submit - AGORA RECEBE VendaRequestDTO NOVAMENTE
+  const handleSubmit = async (data: VendaRequestDTO) => { // ALTERADO AQUI
     setFormLoading(true);
     setFormError(null);
     
+    // Nenhuma conversão necessária, pois o VendaForm já submete o DTO limpo.
+
     try {
-      await adminService.lancarVenda(data); // [cite: 191]
+      await adminService.lancarVenda(data); //
       await fetchData(); // Recarrega a lista de vendas
       handleCloseModal(); // Fecha o modal
       
@@ -99,11 +104,12 @@ export default function VendasPage() {
         </div>
       )}
 
-      {/* MODAL DE LANÇAMENTO DE VENDA */}
+{/* MODAL DE LANÇAMENTO DE VENDA */}
       <GenericFormModal
         isOpen={isModalOpen}
-        onClose={handleCloseModal}
+        onClose={handleCloseModal} // Mantém o botão de fechar funcionando
         title="Lançar Nova Venda"
+        closeOnOutsideClick={false} // NOVO: Desabilita o fechamento ao clicar fora
       >
         <VendaForm
           onSubmit={handleSubmit}
@@ -136,8 +142,8 @@ export default function VendasPage() {
                   <td className="td-cell">
                     {/* A API pode retornar o objeto Vendedor aninhado, ou apenas o ID. 
                         Ajuste 'venda.vendedor?.nome' conforme a resposta real da sua API */}
-                    <div className="font-medium text-gray-900">{venda.vendedor?.nome || 'Vendedor não carregado'}</div>
-                    <div className="text-xs text-gray-500">{venda.vendedor?.email || ''}</div>
+                    <div className="font-medium text-gray-900">{venda.vendedor || 'Vendedor não carregado'}</div>
+                    <div className="text-xs text-gray-500">{venda.vendedorId || ''}</div>
                   </td>
                   <td className="td-cell text-green-600 font-medium">
                     R$ {venda.valorVenda.toFixed(2)}

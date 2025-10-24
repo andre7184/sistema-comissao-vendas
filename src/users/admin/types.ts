@@ -30,7 +30,10 @@ export interface VendedorRequestDTO {
 }
 
 // DTO para a requisição de atualização de Vendedor
+// AGORA INCLUI NOME E EMAIL para permitir a edição no form
 export interface VendedorUpdateRequestDTO {
+  nome: string; // Adicionado
+  email: string; // Adicionado
   percentualComissao: number;
 }
 
@@ -41,9 +44,15 @@ export interface Venda {
   valorVenda: number;
   dataVenda: string; // A API retorna uma data (provavelmente string ISO)
   valorComissaoCalculado: number;
-  vendedor: Vendedor; // Ou apenas vendedorId, dependendo da resposta
+  vendedorId: number;
+  vendedor: string; // Ou apenas vendedorId, dependendo da resposta
 }
-
+// "id": 1,
+// 		"valorVenda": 100.00,
+// 		"valorComissaoCalculado": 10.00,
+// 		"dataVenda": "2025-10-24T03:01:53.816552",
+// 		"idVendedor": 2,
+// 		"nomeVendedor": "maria"
 // DTO para a requisição de lançamento de Venda
 export interface VendaRequestDTO {
   vendedorId: number;
