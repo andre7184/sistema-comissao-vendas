@@ -1,23 +1,27 @@
 // src/users/admin/services/adminService.ts
 
 import api from '../../../services/api'; // Importa a instância global do Axios
+
 import type {
-  Vendedor,
+  Vendedor, // Tipo BÁSICO
+  VendedorDetalhado, // <-- NOVO: Tipo DETALHADO
   VendedorCriadoResponseDTO,
   VendedorRequestDTO,
   VendedorUpdateRequestDTO,
   Venda,
   VendaRequestDTO,
-  VendedorNested
+  VendedorNested,
 } from '../types';
 
-// DTO interno para o que a API REALMENTE retorna de VENDEDOR (para listarVendedores)
-interface VendedorAPIDTO {
-    idVendedor: number;
+interface VendedorListAPIDTO {
+    idVendedor: number; // O campo ID da API
     percentualComissao: number;
-    idUsuario: number;
+    idUsuario: number; // NOVO: Campo da API
     nome: string;
     email: string;
+    qtdVendas: number; 
+    valorTotalVendas: number; 
+    idEmpresa: number; // A API retorna, mesmo que VendedorDetalhado já tenha
     [key: string]: any; 
 }
 
@@ -40,17 +44,34 @@ export const adminService = {
    * GET /api/vendedores
    */
   listarVendedores: async (): Promise<Vendedor[]> => {
-    // A API retorna VendedorAPIDTO[], mas o frontend espera Vendedor[]
-    const response = await api.get<VendedorAPIDTO[]>('/api/vendedores');
+    // 1. Usa a DTO da API para receber os dados
+    const response = await api.get<VendedorListAPIDTO[]>('/api/vendedores');
     
-    // Mapeamento: Transforma idVendedor em id para a interface do frontend
+    // 2. Mapeamento dos campos da API para a sua interface Vendedor
+    // NOTA: É necessário que a interface Vendedor em types.ts tenha os campos:
+    // qtdVendas, valorTotalVendas e idUsuario
     return response.data.map(item => ({
-      id: item.idVendedor, // CORREÇÃO AQUI: Mapeia o ID correto
-      nome: item.nome,
-      email: item.email,
-      percentualComissao: item.percentualComissao,
-      idEmpresa: item.idEmpresa || 0, // Ajuste se idEmpresa não vier na resposta
-    }));
+        // Mapeamento: 'idVendedor' da API vira 'id' na sua interface
+        id: item.idVendedor,
+        
+        // Mapeamento direto (nomes iguais)
+        nome: item.nome,
+        email: item.email,
+        percentualComissao: item.percentualComissao,
+        idEmpresa: item.idEmpresa,
+        
+        // CAMPOS DE LISTAGEM (que DEVEM ser adicionados em types.ts)
+        // Se Vendedor não tiver estes, a linha abaixo dará erro de tipagem.
+        qtdVendas: item.qtdVendas,
+        valorTotalVendas: item.valorTotalVendas,
+        idUsuario: item.idUsuario,
+
+    // Como VendedorDetalhado é usado para /detalhes, 
+    // é mais simples fazer VendedorDetalhado extends Vendedor
+    // e adicionar estes campos faltantes na interface Vendedor
+    // para que a listagem /vendedores funcione sem erros.
+
+    } as Vendedor)); // Cast para Vendedor para garantir a tipagem de retorno
   },
 
   /**
@@ -70,6 +91,18 @@ export const adminService = {
     const response = await api.put<Vendedor>(`/api/vendedores/${idVendedor}`, dados);
     return response.data;
   },
+
+  buscarDetalhesVendedor: async (idVendedor: number): Promise<VendedorDetalhado> => {
+    // Aqui usamos VendedorDetalhado, pois a API já deve retornar o objeto formatado
+    const response = await api.get<VendedorDetalhado>(`/api/vendedores/${idVendedor}/detalhes`);
+    return response.data;
+  },
+
+  /**
+   * NOVO SERVIÇO: Busca os dados detalhados de um vendedor, incluindo métricas
+   * GET /api/vendedores/{id}/detalhes
+   * Retorna VendedorDetalhado
+   */
 
   // --- GERENCIAMENTO DE VENDAS ---
 

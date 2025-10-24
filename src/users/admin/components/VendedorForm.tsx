@@ -1,7 +1,7 @@
 // src/users/admin/components/VendedorForm.tsx
 
-import type { Vendedor, VendedorRequestDTO, VendedorUpdateRequestDTO } from '../types';
-import { useForm, Controller } from 'react-hook-form';
+import type { Vendedor } from '../types';
+import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useEffect } from 'react';
@@ -45,7 +45,7 @@ export default function VendedorForm({ initialData, onSubmit, loading, error }: 
     percentualComissao: initialData?.percentualComissao || 0.0,
   };
 
-  const { register, handleSubmit, control, reset, formState: { errors } } = useForm<VendedorFormData>({
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<VendedorFormData>({
     resolver: yupResolver(schema),
     defaultValues: defaultValues,
   });

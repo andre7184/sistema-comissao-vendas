@@ -10,6 +10,20 @@ export interface Vendedor {
   // A entidade Vendedor completa pode ter mais campos, ajuste conforme necessário
 }
 
+export interface VendedorDetalhado extends Vendedor {
+  dataCadastro: string; // Ex: '2023-01-15T10:00:00Z'
+  qtdVendas: number;
+  valorTotalVendas: number;
+  mediaComissao: number;
+  
+  // Estrutura para dados de gráfico
+  historicoRendimentos?: Array<{
+    mesAno: string; // Ex: "2024-06"
+    valorVendido: number;
+    valorComissao: number;
+  }>;
+}
+
 // DTO para a resposta de criação de Vendedor
 export interface VendedorCriadoResponseDTO {
   idVendedor: number;
@@ -30,6 +44,8 @@ export interface VendedorRequestDTO {
 
 // DTO para a requisição de atualização de Vendedor
 export interface VendedorUpdateRequestDTO {
+  nome: string;
+  email: string;
   percentualComissao: number;
 }
 

@@ -7,7 +7,7 @@ import { adminService } from '../services/adminService';
 import GenericFormModal from '../../../components/GenericFormModal';
 import VendaForm from '../components/VendaForm';
 // NOVO: Importa a função de navegação, assumindo que você usa react-router-dom
-import { useNavigate } from 'react-router-dom'; 
+import { useNavigationUtils } from '../hooks/useNavigationUtils';
 
 // Helper para formatar data (opcional)
 const formatarData = (dataISO: string) => {
@@ -31,14 +31,12 @@ export default function VendasPage() {
   const [formError, setFormError] = useState<string | null>(null);
 
   // NOVO: Hook de navegação
-  const navigate = useNavigate();
-
+  const { handleAbrirVendedor } = useNavigationUtils(); // Renomeado para maior clareza
 
   // Função para carregar dados da página (vendas e vendedores)
   const fetchData = async () => {
     setLoading(true);
     try {
-      // Carrega os dados de forma paralela (melhor performance)
       const [vendasData, vendedoresData] = await Promise.all([
         adminService.listarVendas(),
         adminService.listarVendedores()
@@ -47,7 +45,6 @@ export default function VendasPage() {
       setVendedores(vendedoresData);
     } catch (e) {
       console.error('Erro ao carregar dados:', e);
-      // Você pode adicionar um estado para exibir erro ao carregar lista
     } finally {
       setLoading(false);
     }
@@ -61,7 +58,6 @@ export default function VendasPage() {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setFormError(null);
-    // Após fechar o modal (e se o submit foi bem-sucedido), recarrega os dados
     if (!formError && !formLoading) {
       fetchData();
     }
@@ -72,7 +68,7 @@ export default function VendasPage() {
     setFormError(null);
     try {
       await adminService.lancarVenda(data);
-      handleCloseModal(); // Fecha e recarrega a lista
+      handleCloseModal();
     } catch (e: any) {
       const errorMsg = e.response?.data?.message || 'Erro ao lançar venda.';
       setFormError(errorMsg);
@@ -81,21 +77,13 @@ export default function VendasPage() {
     }
   };
 
-  // NOVO: Função para navegar para a página de edição de vendedor
-  const handleAbrirVendedor = (idVendedor: number) => {
-    // Navega para a página de vendedores, usando o state para indicar qual vendedor destacar/editar.
-    // Você precisará implementar a lógica de highlight/edição na VendedoresPage.tsx
-    navigate(`/vendedor`, { state: { highlightVendedorId: idVendedor } });
-  };
-
-
   return (
     <DashboardLayout>
       <header className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-semibold text-gray-800">Lançamento de Vendas</h1>
         <button
-          onClick={() => setIsModalOpen(true)}
-          className="btn-primary"
+          onClick={() => setIsModalOpen(true)} // CHAMA A FUNÇÃO DE ABRIR MODAL
+          className="bg-blue-500 text-white px-4 py-2 rounded shadow hover:bg-blue-600 transition" // Adicionado o estilo do btn-primary
         >
           Lançar Nova Venda
         </button>
@@ -109,41 +97,27 @@ export default function VendasPage() {
 
       {!loading && vendas.length > 0 && (
         <div className="bg-white shadow rounded-lg overflow-x-auto">
-          <table className="w-full min-w-[1000px]"> {/* Aumentei o min-width para acomodar as colunas */}
+          <table className="w-full min-w-[1000px]">
             <thead className="bg-gray-50">
               <tr>
                 <th className="th-cell">Data</th>
-                <th className="th-cell">ID Vendedor</th> {/* NOVO */}
-                <th className="th-cell">Nome Vendedor</th> {/* NOVO */}
-                <th className="th-cell">Email</th> {/* NOVO */}
+                <th className="th-cell">Nome Vendedor</th>
                 <th className="th-cell">Valor da Venda (R$)</th>
                 <th className="th-cell">Comissão Calculada (R$)</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
               {vendas.map((venda) => (
-                <tr key={venda.id}>
-                  <td className="td-cell">{formatarData(venda.dataVenda)}</td>
-                  
-                  {/* NOVO: ID Vendedor */}
-                  <td className="td-cell text-sm">
-                    {venda.vendedor.idVendedor}
-                  </td>
-                  
-                  {/* NOVO: Nome do Vendedor */}
-                  <td className="td-cell font-medium text-gray-900 cursor-pointer">
-                    <a
-                      onClick={() => handleAbrirVendedor(venda.vendedor.idVendedor)}
-                      className="text-indigo-600 hover:text-indigo-800 font-medium"
-                      title="Abrir página de edição do vendedor"
+                <tr key={venda.id}><td className="td-cell">{formatarData(venda.dataVenda)}</td>
+                  {/* Nome do Vendedor */}
+                  <td className="td-cell font-medium text-gray-900">
+                    <a onClick={() => handleAbrirVendedor(venda.vendedor.idVendedor)}
+                      className="text-indigo-600 hover:text-indigo-800 font-medium text-xs cursor-pointer"
+                      title="Abrir página de detalhes do vendedor"
                     >
-                      {venda.vendedor.nome}
+                      <span className="text-sm">{venda.vendedor.nome}</span>
                     </a>
-                  </td>
-                  
-                  {/* NOVO: Email do Vendedor */}
-                  <td className="td-cell text-sm text-gray-500">
-                    {venda.vendedor.email}
+                    <p className="text-xs text-gray-500">({venda.vendedor.email})</p>
                   </td>
                   
                   <td className="td-cell text-green-600 font-medium">
@@ -164,7 +138,7 @@ export default function VendasPage() {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         title="Lançar Nova Venda"
-        closeOnOutsideClick={false} // Desabilita o fechamento ao clicar fora
+        closeOnOutsideClick={false} 
       >
         <VendaForm
           onSubmit={handleSubmit}

@@ -6,6 +6,7 @@ import type { Vendedor, VendedorRequestDTO, VendedorUpdateRequestDTO } from '../
 import { adminService } from '../services/adminService';
 import GenericFormModal from '../../../components/GenericFormModal';
 import VendedorForm from '../components/VendedorForm';
+import { useNavigationUtils } from '../hooks/useNavigationUtils';
 
 // Tipagem para os dados do VendedorForm
 interface VendedorFormData {
@@ -25,6 +26,8 @@ export default function VendedoresPage() {
   const [loading, setLoading] = useState(false); // Loading da lista
   const [formLoading, setFormLoading] = useState(false); // Loading do submit do form
   const [formError, setFormError] = useState<string | null>(null);
+
+    const { handleAbrirVendedor } = useNavigationUtils();
 
   const fetchVendedores = async () => {
     setLoading(true);
@@ -119,6 +122,7 @@ export default function VendedoresPage() {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         title={editandoVendedor ? 'Editar Vendedor' : 'Cadastrar Novo Vendedor'}
+        closeOnOutsideClick={false}
       >
         <VendedorForm
           onSubmit={handleSubmit}
@@ -160,7 +164,6 @@ export default function VendedoresPage() {
             <thead className="bg-gray-50">
               <tr>
                 <th className="th-cell">Nome</th>
-                <th className="th-cell">Email (Login)</th>
                 <th className="th-cell">Comissão (%)</th>
                 <th className="th-cell">Ações</th>
               </tr>
@@ -169,10 +172,17 @@ export default function VendedoresPage() {
               {vendedores.map((vendedor) => (
                 <tr key={vendedor.id}>
                   <td className="td-cell">
-                    <div className="font-medium text-gray-900">{vendedor.nome}</div>
-                  </td>
-                  <td className="td-cell">
-                    {vendedor.email}
+                    
+                    <div className="font-medium text-gray-900">
+                      <a
+                        onClick={() => handleAbrirVendedor(vendedor.id)}
+                        className="text-indigo-600 hover:text-indigo-800 font-medium cursor-pointer"
+                        title="Abrir página de edição do vendedor"
+                      >
+                        <span className="text-sm">{vendedor.nome}</span>
+                    </a>
+                    <p className="text-xs text-gray-500">({vendedor.email})</p>
+                    </div>
                   </td>
                   <td className="td-cell">
                     {vendedor.percentualComissao.toFixed(2)}%

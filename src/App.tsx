@@ -10,6 +10,7 @@ import EmpresasPage from './users/superadmin/pages/EmpresasPage';
 import ModulosPage from './users/superadmin/pages/ModulosPage';
 import VendedoresPage from './users/admin/pages/VendedoresPage';
 import VendasPage from './users/admin/pages/VendasPage'; // <-- 1. IMPORTE A PÁGINA
+import VendedorDetailPage from './users/admin/pages/VendedorDetailPage'; // <-- IMPORTAÇÃO DA NOVA PÁGINA
 import MeusModulosPage from './pages/Modulos';
 
 // Define os papéis para uso nas rotas
@@ -71,6 +72,18 @@ function App() {
                 requiredModule={MODULES.COMISSOES}
               >
                 <VendedoresPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/vendedor/:id" // <-- Rota dinâmica com o ID
+            element={
+              <ProtectedRoute 
+                allowedRoles={[ROLES.ADMIN]} // Acesso restrito ao Admin
+                requiredModule={MODULES.COMISSOES}
+              >
+                <VendedorDetailPage /> 
               </ProtectedRoute>
             }
           />

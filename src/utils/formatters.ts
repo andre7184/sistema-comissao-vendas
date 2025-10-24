@@ -13,30 +13,32 @@ export function formatarCnpj(valor: string): string {
         .slice(0, 18); // Limita o tamanho máximo do CNPJ formatado
 }
 
-// NOVO: Função auxiliar para formatar o valor como moeda R$
+// Função auxiliar para formatar o valor como moeda R$
 export const formatarParaMoeda = (valor: string | number | undefined): string => {
-    if (valor === undefined || valor === null) return '';
+    const numericValue = Number(valor);
+
+    if (isNaN(numericValue) || valor === undefined || valor === null) {
+        return '';
+    }
     
-    // Converte para string e limpa todos os caracteres exceto dígitos
-    const numericValue = String(valor).replace(/\D/g, '');
-    if (!numericValue) return '';
-
-    // Converte para centavos (número inteiro)
-    const intValue = parseInt(numericValue, 10);
-    // Converte para reais (dividindo por 100)
-    const floatValue = intValue / 100;
-
+    // NOTA: O RHF armazena o float (Ex: 1.00), e Intl o formata para R$ 1,00.
     return new Intl.NumberFormat('pt-BR', {
         style: 'currency',
         currency: 'BRL',
-    }).format(floatValue);
+    }).format(numericValue);
 };
 
-// NOVO: Função auxiliar para remover a formatação e obter o valor numérico (float)
+// Função auxiliar para remover a formatação e obter o valor numérico (float)
 export const desformatarMoeda = (valorFormatado: string): number => {
-    // Remove R$, pontos e substitui vírgula por ponto (para JS)
-    const valor = valorFormatado
-        .replace(/[R$\s.]/g, '')
-        .replace(',', '.');
-    return parseFloat(valor) || 0;
+    // 1. Extrai APENAS os dígitos (ignora R$, vírgulas, pontos e texto)
+    const digits = valorFormatado.replace(/\D/g, ''); 
+
+    if (!digits) return 0;
+
+    // 2. Converte para centavos (inteiro)
+    const intCentavos = parseInt(digits, 10);
+    
+    // 3. Retorna o valor em Reais (float)
+    // Ex: Digitando "100" -> 1.00
+    return intCentavos / 100;
 };

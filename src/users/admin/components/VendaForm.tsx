@@ -1,18 +1,15 @@
 // src/users/admin/components/VendaForm.tsx
 
 import type { Vendedor, VendaRequestDTO } from '../types';
-import { useForm, type SubmitHandler, Controller } from 'react-hook-form'; // Adicionado Controller
+import { useForm, type SubmitHandler, Controller } from 'react-hook-form'; 
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { useState, useMemo } from 'react'; // Adicionado useCallback
+import { useState, useMemo, useEffect } from 'react';
 import { formatarParaMoeda, desformatarMoeda } from '../../../utils/formatters';
+
+
 // DTO para o formulário
 type VendaFormData = VendaRequestDTO;
-
-// Função auxiliar para formatar o valor como moeda R$
-// import { formatarParaMoeda, desformatarMoeda } from '../utils/formatters';
-
-
 
 // Schema de validação
 const schema = yup.object().shape({
@@ -22,7 +19,7 @@ const schema = yup.object().shape({
     .typeError('Você deve selecionar um vendedor'),
   valorVenda: yup.number()
     .required('O valor da venda é obrigatório')
-    .moreThan(0, 'O valor da venda deve ser maior que zero')
+    .min(0, 'O valor da venda não pode ser negativo') // PERMITE O ZERO
     .typeError('O valor deve ser um número (use . para decimais)'),
 });
 
@@ -52,10 +49,22 @@ export default function VendaForm({ vendedores, onSubmit, loading, error }: Vend
   const vendedorId = watch('vendedorId');
   
   // Efeito para sincronizar o nome no campo de busca quando o ID muda
-  // ... (Lógica inalterada) ...
+  useEffect(() => {
+    if (vendedorId > 0 && vendedores.length > 0) {
+      const vendedor = vendedores.find(v => v.id === vendedorId);
+      if (vendedor) {
+        const fullText = `${vendedor.nome} (Comissão: ${vendedor.percentualComissao}%)`;
+        setVendedorSelecionadoNome(fullText);
+        setSearchTerm(fullText);
+      }
+    } else if (vendedorId === 0) {
+        setVendedorSelecionadoNome('');
+        setSearchTerm('');
+    }
+  }, [vendedorId, vendedores]);
+
 
   const filteredVendedores = useMemo(() => {
-    // ... (Lógica inalterada) ...
     const vendedoresValidos = vendedores.filter(v => typeof v.id === 'number' && v.id > 0);
 
     if (!searchTerm || vendedorId > 0) return vendedoresValidos;
@@ -68,15 +77,12 @@ export default function VendaForm({ vendedores, onSubmit, loading, error }: Vend
 
 
   const handleSelectVendedor = (vendedor: Vendedor) => {
-    // ... (Lógica inalterada) ...
     if (typeof vendedor.id !== 'number' || vendedor.id <= 0) {
         console.error("[VendaForm] Erro: Tentativa de selecionar vendedor com ID inválido.", vendedor);
         return;
     }
     
     const fullText = `${vendedor.nome} (Comissão: ${vendedor.percentualComissao}%)`;
-    
-    console.log(`[VendaForm] Vendedor Selecionado: ID setado para ${vendedor.id}`);
     
     setValue('vendedorId', vendedor.id, { shouldValidate: true });
     setVendedorSelecionadoNome(fullText);
@@ -85,20 +91,17 @@ export default function VendaForm({ vendedores, onSubmit, loading, error }: Vend
   };
   
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // ... (Lógica inalterada) ...
     const value = e.target.value;
     setSearchTerm(value);
     setIsDropdownOpen(true);
 
     if (vendedorId > 0 && !vendedorSelecionadoNome.toLowerCase().includes(value.toLowerCase())) {
-        console.log("[VendaForm] Digitando, zerando vendedorId para 0.");
         setValue('vendedorId', 0, { shouldValidate: true }); 
     }
     setVendedorSelecionadoNome(value); 
   };
   
   const handleFormSubmit: SubmitHandler<VendaRequestDTO> = (data) => {
-    console.log(`[VendaForm] Submetendo. Vendedor ID Final: ${data.vendedorId}, Valor: ${data.valorVenda}`);
     onSubmit(data);
   };
 
@@ -142,7 +145,7 @@ export default function VendaForm({ vendedores, onSubmit, loading, error }: Vend
                   onMouseDown={() => handleSelectVendedor(v)} 
                   className={`p-2 cursor-pointer hover:bg-blue-100 ${v.id === vendedorId ? 'bg-blue-50 font-semibold' : ''}`}
                 >
-                  {v.nome} <span className="text-gray-500 text-sm"> | Comissão: {v.percentualComissao}%)</span>
+                  {v.nome} <span className="text-gray-500 text-sm">(Comissão: {v.percentualComissao}%)</span>
                 </li>
               ))}
             </ul>
@@ -155,7 +158,7 @@ export default function VendaForm({ vendedores, onSubmit, loading, error }: Vend
         )}
       </div>
 
-      {/* Valor da Venda - AGORA COM CONTROLLER PARA FORMATO DE MOEDA */}
+      {/* Valor da Venda - COM CONTROLLER PARA FORMATO DE MOEDA */}
       <div>
         <label htmlFor="valorVenda" className="block text-sm font-medium text-gray-700">Valor da Venda (R$)</label>
         <Controller
@@ -167,6 +170,7 @@ export default function VendaForm({ vendedores, onSubmit, loading, error }: Vend
                     type="text" // Tipo precisa ser text para aceitar a máscara
                     value={formatarParaMoeda(field.value)} // Formata o valor do RHF
                     onChange={(e) => {
+                        // Usa a função desformatarMoeda para obter o float real (reais/centavos)
                         const numericValue = desformatarMoeda(e.target.value);
                         field.onChange(numericValue); // Define o valor numérico (float) para o RHF/Yup
                     }}
