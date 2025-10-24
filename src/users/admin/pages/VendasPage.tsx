@@ -6,6 +6,8 @@ import type { Venda, Vendedor, VendaRequestDTO } from '../types';
 import { adminService } from '../services/adminService';
 import GenericFormModal from '../../../components/GenericFormModal';
 import VendaForm from '../components/VendaForm';
+// NOVO: Importa a função de navegação, assumindo que você usa react-router-dom
+import { useNavigate } from 'react-router-dom'; 
 
 // Helper para formatar data (opcional)
 const formatarData = (dataISO: string) => {
@@ -19,9 +21,6 @@ const formatarData = (dataISO: string) => {
   }
 };
 
-// REMOVIDO: interface VendaFormData extends VendaRequestDTO { vendedorSelecionadoNome: string; }
-
-
 export default function VendasPage() {
   const [vendas, setVendas] = useState<Venda[]>([]);
   const [vendedores, setVendedores] = useState<Vendedor[]>([]); // Para o form
@@ -31,20 +30,24 @@ export default function VendasPage() {
   const [formLoading, setFormLoading] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
+  // NOVO: Hook de navegação
+  const navigate = useNavigate();
+
+
   // Função para carregar dados da página (vendas e vendedores)
   const fetchData = async () => {
     setLoading(true);
     try {
-      // Carrega os dois endpoints em paralelo
+      // Carrega os dados de forma paralela (melhor performance)
       const [vendasData, vendedoresData] = await Promise.all([
-        adminService.listarVendas(),      // 
-        adminService.listarVendedores() // 
+        adminService.listarVendas(),
+        adminService.listarVendedores()
       ]);
       setVendas(vendasData);
       setVendedores(vendedoresData);
-    } catch (err) {
-      console.error("Erro ao buscar dados:", err);
-      // Aqui você pode setar um erro de página inteira se desejar
+    } catch (e) {
+      console.error('Erro ao carregar dados:', e);
+      // Você pode adicionar um estado para exibir erro ao carregar lista
     } finally {
       setLoading(false);
     }
@@ -54,81 +57,65 @@ export default function VendasPage() {
     fetchData();
   }, []);
 
-  const handleOpenModal = () => {
-    setFormError(null);
-    setIsModalOpen(true);
-  };
-
+  
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setFormError(null);
+    // Após fechar o modal (e se o submit foi bem-sucedido), recarrega os dados
+    if (!formError && !formLoading) {
+      fetchData();
+    }
   };
-
-  // Função chamada pelo VendaForm no submit - AGORA RECEBE VendaRequestDTO NOVAMENTE
-  const handleSubmit = async (data: VendaRequestDTO) => { // ALTERADO AQUI
+  
+  const handleSubmit = async (data: VendaRequestDTO) => {
     setFormLoading(true);
     setFormError(null);
-    
-    // Nenhuma conversão necessária, pois o VendaForm já submete o DTO limpo.
-
     try {
-      await adminService.lancarVenda(data); //
-      await fetchData(); // Recarrega a lista de vendas
-      handleCloseModal(); // Fecha o modal
-      
-    } catch (err: any) {
-      console.error('Erro ao lançar venda:', err.response?.data || err.message);
-      const msg = err.response?.data?.message || `Erro ao lançar venda. Verifique os dados.`;
-      setFormError(msg); // Exibe o erro dentro do modal
+      await adminService.lancarVenda(data);
+      handleCloseModal(); // Fecha e recarrega a lista
+    } catch (e: any) {
+      const errorMsg = e.response?.data?.message || 'Erro ao lançar venda.';
+      setFormError(errorMsg);
     } finally {
       setFormLoading(false);
     }
   };
 
+  // NOVO: Função para navegar para a página de edição de vendedor
+  const handleAbrirVendedor = (idVendedor: number) => {
+    // Navega para a página de vendedores, usando o state para indicar qual vendedor destacar/editar.
+    // Você precisará implementar a lógica de highlight/edição na VendedoresPage.tsx
+    navigate(`/vendedor`, { state: { highlightVendedorId: idVendedor } });
+  };
+
+
   return (
     <DashboardLayout>
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold">Lançamentos de Vendas</h2>
+      <header className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-semibold text-gray-800">Lançamento de Vendas</h1>
         <button
-          onClick={handleOpenModal}
-          disabled={vendedores.length === 0} // Desabilita se não há vendedores
-          className="bg-blue-500 text-white px-4 py-2 rounded shadow hover:bg-blue-600 transition disabled:bg-gray-400"
+          onClick={() => setIsModalOpen(true)}
+          className="btn-primary"
         >
-          + Lançar Venda
+          Lançar Nova Venda
         </button>
-      </div>
-      
-      {vendedores.length === 0 && !loading && (
-        <div className="p-3 mb-4 bg-yellow-100 text-yellow-800 border border-yellow-300 rounded">
-          Você precisa <a href="/vendedores" className="font-bold underline">cadastrar vendedores</a> antes de lançar vendas.
-        </div>
+      </header>
+
+      {loading && <p className="text-gray-600">Carregando dados das vendas...</p>}
+
+      {!loading && vendas.length === 0 && (
+        <p className="text-gray-600">Nenhuma venda registrada ainda.</p>
       )}
 
-{/* MODAL DE LANÇAMENTO DE VENDA */}
-      <GenericFormModal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal} // Mantém o botão de fechar funcionando
-        title="Lançar Nova Venda"
-        closeOnOutsideClick={false} // NOVO: Desabilita o fechamento ao clicar fora
-      >
-        <VendaForm
-          onSubmit={handleSubmit}
-          vendedores={vendedores}
-          loading={formLoading}
-          error={formError}
-        />
-      </GenericFormModal>
-
-      {/* LISTAGEM DE VENDAS */}
-      {loading ? (
-        <p>Carregando vendas...</p>
-      ) : (
+      {!loading && vendas.length > 0 && (
         <div className="bg-white shadow rounded-lg overflow-x-auto">
-          <table className="w-full min-w-[700px]">
+          <table className="w-full min-w-[1000px]"> {/* Aumentei o min-width para acomodar as colunas */}
             <thead className="bg-gray-50">
               <tr>
                 <th className="th-cell">Data</th>
-                <th className="th-cell">Vendedor</th>
+                <th className="th-cell">ID Vendedor</th> {/* NOVO */}
+                <th className="th-cell">Nome Vendedor</th> {/* NOVO */}
+                <th className="th-cell">Email</th> {/* NOVO */}
                 <th className="th-cell">Valor da Venda (R$)</th>
                 <th className="th-cell">Comissão Calculada (R$)</th>
               </tr>
@@ -136,15 +123,29 @@ export default function VendasPage() {
             <tbody className="divide-y divide-gray-200">
               {vendas.map((venda) => (
                 <tr key={venda.id}>
-                  <td className="td-cell">
-                    {formatarData(venda.dataVenda)}
+                  <td className="td-cell">{formatarData(venda.dataVenda)}</td>
+                  
+                  {/* NOVO: ID Vendedor */}
+                  <td className="td-cell text-sm">
+                    {venda.vendedor.idVendedor}
                   </td>
-                  <td className="td-cell">
-                    {/* A API pode retornar o objeto Vendedor aninhado, ou apenas o ID. 
-                        Ajuste 'venda.vendedor?.nome' conforme a resposta real da sua API */}
-                    <div className="font-medium text-gray-900">{venda.vendedor || 'Vendedor não carregado'}</div>
-                    <div className="text-xs text-gray-500">{venda.vendedorId || ''}</div>
+                  
+                  {/* NOVO: Nome do Vendedor */}
+                  <td className="td-cell font-medium text-gray-900 cursor-pointer">
+                    <a
+                      onClick={() => handleAbrirVendedor(venda.vendedor.idVendedor)}
+                      className="text-indigo-600 hover:text-indigo-800 font-medium"
+                      title="Abrir página de edição do vendedor"
+                    >
+                      {venda.vendedor.nome}
+                    </a>
                   </td>
+                  
+                  {/* NOVO: Email do Vendedor */}
+                  <td className="td-cell text-sm text-gray-500">
+                    {venda.vendedor.email}
+                  </td>
+                  
                   <td className="td-cell text-green-600 font-medium">
                     R$ {venda.valorVenda.toFixed(2)}
                   </td>
@@ -157,6 +158,21 @@ export default function VendasPage() {
           </table>
         </div>
       )}
+
+      {/* MODAL DE LANÇAMENTO DE VENDA */}
+      <GenericFormModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        title="Lançar Nova Venda"
+        closeOnOutsideClick={false} // Desabilita o fechamento ao clicar fora
+      >
+        <VendaForm
+          onSubmit={handleSubmit}
+          vendedores={vendedores}
+          loading={formLoading}
+          error={formError}
+        />
+      </GenericFormModal>
     </DashboardLayout>
   );
 }

@@ -1,7 +1,6 @@
 // src/users/admin/types.ts
 
-// Interface base para a entidade Vendedor
-// (Baseado na resposta de GET /api/vendedores e GET /api/vendedores/{id})
+// Interface base para a entidade Vendedor (usada em listarVendedores e VendaForm)
 export interface Vendedor {
   id: number;
   nome: string;
@@ -30,30 +29,32 @@ export interface VendedorRequestDTO {
 }
 
 // DTO para a requisição de atualização de Vendedor
-// AGORA INCLUI NOME E EMAIL para permitir a edição no form
 export interface VendedorUpdateRequestDTO {
-  nome: string; // Adicionado
-  email: string; // Adicionado
   percentualComissao: number;
 }
 
+// NOVO: Interface para o objeto Vendedor aninhado dentro da Venda
+export interface VendedorNested {
+  idVendedor: number; // A API retorna o ID com este nome
+  nome: string;
+  email: string;
+  percentualComissao: number;
+}
+
+
 // Interface base para a entidade Venda
-// (Baseado na resposta de GET /api/vendas e POST /api/vendas)
+// (ATUALIZADO para incluir o objeto vendedor aninhado)
 export interface Venda {
   id: number;
   valorVenda: number;
   dataVenda: string; // A API retorna uma data (provavelmente string ISO)
   valorComissaoCalculado: number;
-  vendedorId: number;
-  vendedor: string; // Ou apenas vendedorId, dependendo da resposta
+  
+  // ATUALIZADO: Adicionado o objeto completo do vendedor
+  vendedor: VendedorNested; 
 }
-// "id": 1,
-// 		"valorVenda": 100.00,
-// 		"valorComissaoCalculado": 10.00,
-// 		"dataVenda": "2025-10-24T03:01:53.816552",
-// 		"idVendedor": 2,
-// 		"nomeVendedor": "maria"
-// DTO para a requisição de lançamento de Venda
+
+// DTO para a requisição de Lançamento de Venda
 export interface VendaRequestDTO {
   vendedorId: number;
   valorVenda: number;

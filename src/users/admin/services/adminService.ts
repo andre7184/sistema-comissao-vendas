@@ -7,29 +7,27 @@ import type {
   VendedorRequestDTO,
   VendedorUpdateRequestDTO,
   Venda,
-  VendaRequestDTO
+  VendaRequestDTO,
+  VendedorNested
 } from '../types';
 
-// DTO interno para o que a API REALMENTE retorna
+// DTO interno para o que a API REALMENTE retorna de VENDEDOR (para listarVendedores)
 interface VendedorAPIDTO {
     idVendedor: number;
     percentualComissao: number;
     idUsuario: number;
     nome: string;
     email: string;
-    // ... e outros campos que a API retorna, como qtdVendas
     [key: string]: any; 
 }
 
-// DTO interno para o que a API REALMENTE retorna
+// DTO interno para o que a API REALMENTE retorna de VENDA (para listarVendas)
 interface VendaAPIDTO {
     id: number;
     valorVenda: number;
     dataVenda: string;
     valorComissaoCalculado: number;
-    idVendedor: number;
-    nomeVendedor: string;
-    // ... e outros campos que a API retorna, como qtdVendas
+    vendedor: VendedorNested; // O objeto aninhado que a API agora retorna
     [key: string]: any; 
 } 
 
@@ -51,22 +49,10 @@ export const adminService = {
       nome: item.nome,
       email: item.email,
       percentualComissao: item.percentualComissao,
-      idEmpresa: item.idEmpresa || 0, // Adiciona o campo que falta na resposta para o tipo Vendedor
-      // O campo idEmpresa provavelmente não está no seu DTO de resposta, mas está na interface Vendedor
+      idEmpresa: item.idEmpresa || 0, // Ajuste se idEmpresa não vier na resposta
     }));
   },
-  listarVendas: async (): Promise<Venda[]> => {
-    const response = await api.get<VendaAPIDTO[]>('/api/vendas');
-    return response.data.map(item => ({
-      id: item.id,
-      valorVenda: item.valorVenda,
-      dataVenda: item.dataVenda,
-      valorComissaoCalculado: item.valorComissaoCalculado,
-      vendedorId: item.idVendedor,
-      vendedor: item.nomeVendedor || '', // Mantém o objeto vendedor conforme retornado pela API
-    }));
-  },
-// ... (Restante do código inalterado) ...
+
   /**
    * Cria um novo vendedor para a empresa logada
    * POST /api/vendedores
@@ -91,13 +77,26 @@ export const adminService = {
    * Lista todas as vendas da empresa logada
    * GET /api/vendas
    */
+  listarVendas: async (): Promise<Venda[]> => {
+    // Usa VendaAPIDTO para garantir que o mapeamento é correto
+    const response = await api.get<VendaAPIDTO[]>('/api/vendas'); 
+    
+    // Mapeamento: Transforma o DTO da API para o tipo Venda esperado
+    return response.data.map(item => ({
+      id: item.id,
+      valorVenda: item.valorVenda,
+      dataVenda: item.dataVenda,
+      valorComissaoCalculado: item.valorComissaoCalculado,
+      vendedor: item.vendedor, // Objeto Vendedor aninhado
+    })) as Venda[]; // Fazemos um cast para Venda[]
+  },
 
   /**
    * Lança uma nova venda para um vendedor
    * POST /api/vendas
    */
   lancarVenda: async (dados: VendaRequestDTO): Promise<Venda> => {
-    const response = await api.post<Venda>('/api/vendas', dados);
+    const response = await api.post<Venda>(`/api/vendas`, dados);
     return response.data;
   }
 };
