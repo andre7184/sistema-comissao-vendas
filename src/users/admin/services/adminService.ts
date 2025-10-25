@@ -11,6 +11,7 @@ import type {
   Venda,
   VendaRequestDTO,
   VendedorNested,
+  EmpresaDashboardData,
 } from '../types';
 
 interface VendedorListAPIDTO {
@@ -131,5 +132,16 @@ export const adminService = {
   lancarVenda: async (dados: VendaRequestDTO): Promise<Venda> => {
     const response = await api.post<Venda>(`/api/vendas`, dados);
     return response.data;
-  }
+  },
+
+  // --- DASHBOARD GERENCIAL ---
+
+  /**
+   * NOVO SERVIÇO: Busca todos os dados gerenciais da empresa para o Dashboard.
+   * GET /api/dashboard/empresa
+   */
+  buscarDashboardEmpresa: async (): Promise<EmpresaDashboardData> => {
+    const response = await api.get<EmpresaDashboardData>('/api/dashboard/empresa');
+    return response.data;
+  },
 };

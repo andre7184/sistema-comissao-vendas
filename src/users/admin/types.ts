@@ -75,3 +75,46 @@ export interface VendaRequestDTO {
   vendedorId: number;
   valorVenda: number;
 }
+
+// NOVO: Estrutura para Vendas de Destaque (USADA NO DASHBOARD)
+export interface VendaDestaque {
+    idVenda: number; // <-- ID DA VENDA (campo que faltava ou estava inconsistente)
+    nomeVendedor: string;
+    idVendedor: number; // Para navegação
+    valorVenda: number;
+    dataVenda: string;
+}
+
+// NOVO: Estrutura para o Ranking de Vendedores
+export interface RankingItem {
+    nomeVendedor: string;
+    idVendedor: number;
+    valorTotal: number;
+    qtdVendas: number;
+}
+
+// NOVO: Estrutura para os dados do gráfico mensal (Histórico)
+export interface HistoricoVendasMensalItem {
+  mesAno: string; // Ex: "2024-06"
+  valorVendido: number; // Valor total vendido no mês
+}
+
+// NOVO: Estrutura completa do Dashboard Gerencial da Empresa
+export interface EmpresaDashboardData {
+  mediaComissaoEmpresa: any;
+  // Métricas Globais
+  totalVendedores: number;
+  totalVendasMes: number;
+  valorTotalVendidoMes: number;
+  valorTotalComissaoMes: number;
+  
+  // Ranking (Top Vendedores)
+  rankingVendedores: RankingItem[];
+  
+  // Vendas de Destaque (reaproveitando a interface Venda)
+  maioresVendas: VendaDestaque[]; // As 3 maiores vendas do mês
+  ultimasVendas: VendaDestaque[]; // As 5 últimas vendas
+  
+  // Dados de Gráfico (Histórico de 12 meses)
+  historicoVendasMensal: HistoricoVendasMensalItem[];
+}

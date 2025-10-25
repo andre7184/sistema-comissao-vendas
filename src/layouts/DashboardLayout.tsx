@@ -1,132 +1,51 @@
 // src/layouts/DashboardLayout.tsx
 
 import { useContext, useState, type ReactNode } from 'react';
-import { useNavigate, NavLink } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthContext';
+// Importa o hook e o componente de menu, movendo toda a lógica para lá.
+import { useFilteredNavItems, SidebarMenu } from '../config/navigationConfig'; 
 
-// Ícones simples para o menu (pode substituir por react-icons)
-const IconHome = () => <span>🏠</span>;
-const IconModulo = () => <span>📦</span>;
-const IconEmpresa = () => <span>🏢</span>;
-const IconVendedor = () => <span>👥</span>;
-const IconVenda = () => <span>💰</span>;
-const IconMenu = () => <span>☰</span>;
-const IconClose = () => <span>X</span>;
+// Ícones que controlam a estrutura (permanecem aqui)
+const IconMenu = () => <span className="text-2xl">☰</span>;
+const IconClose = () => <span className="text-2xl">X</span>;
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const { role, permissoes, logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false); // Estado para o hambúrguer
 
-  // Verifica a permissão do módulo COMISSOES_CORE [cite: 141, 189]
-  const temComissoesCore = permissoes?.includes('COMISSAO_CORE');
+  // Usa o hook para obter os itens de menu filtrados
+  const filteredNavItems = useFilteredNavItems({
+    currentRole: role,
+    currentPermissoes: permissoes,
+  });
 
   const handleLogout = () => {
     logout();
     navigate('/');
   };
 
-  const activeLinkClass = "bg-blue-100 text-blue-700";
-  const inactiveLinkClass = "text-gray-600 hover:bg-gray-100 hover:text-gray-900";
-
+  // Renderiza o menu usando o componente externo SidebarMenu
   const renderNavLinks = () => (
-    <nav className="flex-1 flex flex-col gap-2 px-2">
-      <NavLink
-        to="/dashboard"
-        end // 'end' garante que só fica ativo na rota exata /dashboard
-        className={({ isActive }) =>
-          `flex items-center gap-3 p-2 rounded-md font-medium ${isActive ? activeLinkClass : inactiveLinkClass}`
-        }
-      >
-        <IconHome /> Dashboard
-      </NavLink>
-
-      {/* Links exclusivos do Super Admin [cite: 9] */}
-      {role === 'ROLE_SUPER_ADMIN' && (
-        <>
-          <NavLink
-            to="/modulos"
-            className={({ isActive }) =>
-              `flex items-center gap-3 p-2 rounded-md font-medium ${isActive ? activeLinkClass : inactiveLinkClass}`
-            }
-          >
-            <IconModulo /> Módulos SaaS
-          </NavLink>
-          <NavLink
-            to="/empresas"
-            className={({ isActive }) =>
-              `flex items-center gap-3 p-2 rounded-md font-medium ${isActive ? activeLinkClass : inactiveLinkClass}`
-            }
-          >
-            <IconEmpresa /> Empresas
-          </NavLink>
-        </>
-      )}
-
-      {/* Links para Admin (requer módulo COMISSOES_CORE) [cite: 141, 189] */}
-      {role === 'ROLE_ADMIN' && (
-        <>
-          {temComissoesCore ? (
-            <>
-              <NavLink
-                to="/vendedores"
-                className={({ isActive }) =>
-                  `flex items-center gap-3 p-2 rounded-md font-medium ${isActive ? activeLinkClass : inactiveLinkClass}`
-                }
-              >
-                <IconVendedor /> Vendedores
-              </NavLink>
-              <NavLink
-                to="/vendas"
-                className={({ isActive }) =>
-                  `flex items-center gap-3 p-2 rounded-md font-medium ${isActive ? activeLinkClass : inactiveLinkClass}`
-                }
-              >
-                <IconVenda /> Vendas
-              </NavLink>
-            </>
-          ) : (
-            <div className='p-2 text-xs text-gray-500'>
-              Módulo 'Comissões Core' não está ativo.
-            </div>
-          )}
-        </>
-      )}
-
-      {/* Links para Vendedor [cite: 11] */}
-      {role === 'ROLE_VENDEDOR' && (
-        <>
-          <NavLink
-            to="/minhas-vendas"
-            className={({ isActive }) =>
-              `flex items-center gap-3 p-2 rounded-md font-medium ${isActive ? activeLinkClass : inactiveLinkClass}`
-            }
-          >
-            <IconVenda /> Minhas Vendas
-          </NavLink>
-        </>
-      )}
-    </nav>
+      // SidebarMenu usa os itens filtrados e o role para renderização condicional/estilização
+      <SidebarMenu filteredItems={filteredNavItems} currentRole={role} />
   );
 
   return (
-    <div className="flex h-screen bg-gray-100 overflow-hidden">
-      {/* Sidebar (Desktop) */}
-      <aside className="hidden md:flex md:flex-col w-64 bg-white shadow-md">
-        <div className="h-16 flex items-center justify-center p-4 border-b">
-          <h2 className="text-xl font-bold text-blue-600">Comissões</h2>
-        </div>
-        <div className="flex-1 overflow-y-auto py-4">
-          {renderNavLinks()}
-        </div>
-      </aside>
-
-      {/* Sidebar (Mobile) - Controlada pelo 'sidebarOpen' */}
+    <div className="flex h-screen bg-gray-50 overflow-hidden">
+      {/* Overlay (Mobile) */}
       {sidebarOpen && (
-        <div className="md:hidden fixed inset-0 z-30 bg-black bg-opacity-50" onClick={() => setSidebarOpen(false)}></div>
+        <div 
+          className="fixed inset-0 z-20 bg-black opacity-50 md:hidden" 
+          onClick={() => setSidebarOpen(false)}
+        ></div>
       )}
+
+      {/* Sidebar */}
       <aside
-        className={`fixed md:hidden z-40 inset-y-0 left-0 w-64 bg-white shadow-md p-4 transform ${
+        className={`fixed inset-y-0 left-0 z-30 w-64 bg-white shadow-xl p-4 md:static md:translate-x-0 
+        transform ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         } transition-transform duration-300 ease-in-out`}
       >
@@ -136,7 +55,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             <IconClose />
           </button>
         </div>
-        {renderNavLinks()}
+        <div className="flex-1 overflow-y-auto py-4">
+            {renderNavLinks()}
+        </div>
       </aside>
 
       {/* Main content */}
@@ -157,10 +78,15 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           </button>
         </header>
 
-        {/* Page content (scrollable) */}
-        <main className="p-4 md:p-6 flex-1 overflow-y-auto">
-          {children} {/* <-- AQUI É ONDE AS PÁGINAS SÃO RENDERIZADAS */}
+        {/* Content Area */}
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4 md:p-6">
+          {children}
         </main>
+        
+        {/* Footer (Opcional) */}
+        <footer className="h-10 bg-white border-t flex items-center justify-center text-xs text-gray-500">
+            &copy; {new Date().getFullYear()} Meu Sistema de Comissões.
+        </footer>
       </div>
     </div>
   );

@@ -11,6 +11,7 @@ import ModulosPage from './users/superadmin/pages/ModulosPage';
 import VendedoresPage from './users/admin/pages/VendedoresPage';
 import VendasPage from './users/admin/pages/VendasPage'; // <-- 1. IMPORTE A PÁGINA
 import VendedorDetailPage from './users/admin/pages/VendedorDetailPage'; // <-- IMPORTAÇÃO DA NOVA PÁGINA
+import EmpresaDashboardPage from './users/admin/pages/EmpresaDashboardPage';
 import MeusModulosPage from './pages/Modulos';
 
 // Define os papéis para uso nas rotas
@@ -97,6 +98,18 @@ function App() {
                 requiredModule={MODULES.COMISSOES} // <-- Segurança de Módulo aplicada
               >
                 <VendasPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/empresa/dashboard" // Rota para o novo dashboard gerencial
+            element={
+              <ProtectedRoute 
+                allowedRoles={[ROLES.ADMIN]} 
+                requiredModule={MODULES.COMISSOES}
+              >
+                <EmpresaDashboardPage />
               </ProtectedRoute>
             }
           />
