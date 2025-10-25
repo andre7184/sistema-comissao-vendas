@@ -107,11 +107,11 @@ export interface EmpresaDashboardData {
   totalComissoesMes: number;
   qtdVendasMes: number;          
   mediaVendaMes: number;
-  mediaComissoesMes: number;    // NOVO NOME
+  mediaComissaoMes: number;    // NOVO NOME
   
   // Campos que a API NÃO retorna devem ser opcionais
   // totalVendedores?: number; // Removido se qtdVendedores é o nome correto
-  // mediaComissaoEmpresa?: number; // Removido se mediaComissoesMes é o nome correto
+  // mediaComissaoEmpresa?: number; // Removido se  é o nome correto
   
   // Dados de Tabela/Lista (verificar se API também mudou nomes aqui)
   rankingVendedores: RankingItem[];

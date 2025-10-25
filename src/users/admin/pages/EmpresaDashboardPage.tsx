@@ -106,8 +106,8 @@ export default function EmpresaDashboardPage() {
                 />
                 <MetricCard 
                     title="Média Comissão (%)" 
-                    // Usa mediaComissoesMes da API
-                    value={`${(dashboardData?.mediaComissoesMes ?? 0).toFixed(2)}%`} 
+                    // Usa mediaComissaoMes da API
+                    value={`${(dashboardData?.mediaComissaoMes ?? 0).toFixed(2)}%`} 
                     colorClass="text-yellow-600"
                 />
             </div>
