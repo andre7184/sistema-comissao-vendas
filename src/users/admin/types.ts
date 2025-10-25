@@ -99,22 +99,48 @@ export interface HistoricoVendasMensalItem {
   valorVendido: number; // Valor total vendido no mês
 }
 
-// NOVO: Estrutura completa do Dashboard Gerencial da Empresa
+// Estrutura completa do Dashboard Gerencial (AJUSTADA PARA NOVOS NOMES)
 export interface EmpresaDashboardData {
-  mediaComissaoEmpresa: any;
-  // Métricas Globais
-  totalVendedores: number;
-  totalVendasMes: number;
-  valorTotalVendidoMes: number;
-  valorTotalComissaoMes: number;
+  // Métricas Globais (Nomes conforme definido)
+  qtdVendedores: number;         // NOVO NOME (ou campo adicionado)
+  totalVendasMes: number;         
+  totalComissoesMes: number;
+  qtdVendasMes: number;          
+  mediaVendaMes: number;
+  mediaComissoesMes: number;    // NOVO NOME
   
-  // Ranking (Top Vendedores)
+  // Campos que a API NÃO retorna devem ser opcionais
+  // totalVendedores?: number; // Removido se qtdVendedores é o nome correto
+  // mediaComissaoEmpresa?: number; // Removido se mediaComissoesMes é o nome correto
+  
+  // Dados de Tabela/Lista (verificar se API também mudou nomes aqui)
   rankingVendedores: RankingItem[];
+  maioresVendas: VendaDestaque[];
+  ultimasVendas: VendaDestaque[];
   
-  // Vendas de Destaque (reaproveitando a interface Venda)
-  maioresVendas: VendaDestaque[]; // As 3 maiores vendas do mês
-  ultimasVendas: VendaDestaque[]; // As 5 últimas vendas
-  
-  // Dados de Gráfico (Histórico de 12 meses)
-  historicoVendasMensal: HistoricoVendasMensalItem[];
+  // Dados de Gráfico (verificar se API também mudou nomes aqui)
+  historicoVendasMensal: Array<{
+    mesAno: string;
+    valorVendido: number; // Verificar nome
+    valorComissao: number; // Verificar nome
+  }>;
+}
+
+// NOVO: Interface para informações básicas da Empresa (retornada pela API)
+export interface EmpresaInfo {
+    id: number;
+    nomeFantasia: string;
+    razaoSocial: string;
+    cnpj: string;
+    // Adicione outros campos relevantes que a API retornar (ex: data de criação)
+}
+
+// NOVO: Interface para detalhes de um Módulo (vindo do catálogo da API)
+export interface ModuloDetalhe {
+    id: number;
+    nome: string;
+    chave: string; // Ex: COMISSAO_CORE
+    descricaoCurta?: string;
+    precoMensal: number;
+    // status?: string; // Se relevante
 }

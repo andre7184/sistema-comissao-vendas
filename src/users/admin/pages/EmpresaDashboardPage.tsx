@@ -78,27 +78,36 @@ export default function EmpresaDashboardPage() {
         <DashboardLayout>
             <h1 className="text-3xl font-bold text-gray-800 mb-6">Dashboard Gerencial</h1>
             
-            {/* CARDS DE MÉTRICAS GLOBAIS (COM ACESSO SEGURO) */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            {/* CARDS DE MÉTRICAS GLOBAIS (ATUALIZADOS) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5 mb-8">
                 <MetricCard 
-                    title="Total de Vendedores Ativos" 
-                    value={dashboardData?.totalVendedores ?? 0} 
-                    colorClass="text-blue-600"
-                />
-                <MetricCard 
-                    title="Vendas Registradas (Mês)" 
-                    value={dashboardData?.totalVendasMes ?? 0} 
+                    title="Qtd. Vendas (Mês)" 
+                    // Usa qtdVendasMes da API
+                    value={dashboardData?.qtdVendasMes ?? 0} 
                     colorClass="text-purple-600"
                 />
                 <MetricCard 
-                    title="Valor Vendido (Mês)" 
-                    value={formatarParaMoeda(dashboardData?.valorTotalVendidoMes)} 
+                    title="Valor Vendas (Mês)" 
+                    // Usa totalVendasMes da API
+                    value={formatarParaMoeda(dashboardData?.totalVendasMes)} 
                     colorClass="text-green-600"
                 />
+                 <MetricCard 
+                    title="Média por Venda (Mês)" 
+                    // Usa mediaVendaMes da API
+                    value={formatarParaMoeda(dashboardData?.mediaVendaMes)} 
+                    colorClass="text-teal-600" 
+                />
+                 <MetricCard 
+                    title="Valor Comissões (Mês)" 
+                    // Usa totalComissoesMes da API
+                    value={formatarParaMoeda(dashboardData?.totalComissoesMes)} 
+                    colorClass="text-cyan-600" 
+                />
                 <MetricCard 
-                    title="Média de Comissão (%)" 
-                    // CORREÇÃO APLICADA AQUI
-                    value={`${(dashboardData?.mediaComissaoEmpresa ?? 0).toFixed(2)}%`} 
+                    title="Média Comissão (%)" 
+                    // Usa mediaComissoesMes da API
+                    value={`${(dashboardData?.mediaComissoesMes ?? 0).toFixed(2)}%`} 
                     colorClass="text-yellow-600"
                 />
             </div>

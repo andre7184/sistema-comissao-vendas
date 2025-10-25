@@ -12,6 +12,8 @@ import type {
   VendaRequestDTO,
   VendedorNested,
   EmpresaDashboardData,
+  EmpresaInfo, // <-- NOVO
+  ModuloDetalhe, // <-- NOVO
 } from '../types';
 
 interface VendedorListAPIDTO {
@@ -142,6 +144,21 @@ export const adminService = {
    */
   buscarDashboardEmpresa: async (): Promise<EmpresaDashboardData> => {
     const response = await api.get<EmpresaDashboardData>('/api/dashboard/empresa');
+    return response.data;
+  },
+
+  buscarInfoEmpresa: async (): Promise<EmpresaInfo> => {
+    const response = await api.get<EmpresaInfo>('/api/empresa/me');
+    return response.data;
+  },
+
+  /**
+   * Busca detalhes dos módulos disponíveis no catálogo geral
+   * GET /api/modulos/catalogo (Exemplo de endpoint)
+   */
+  listarDetalhesModulos: async (): Promise<ModuloDetalhe[]> => {
+    // Retorna a lista completa de módulos com nome, chave, preço, etc.
+    const response = await api.get<ModuloDetalhe[]>('/api/modulos/catalogo'); 
     return response.data;
   },
 };

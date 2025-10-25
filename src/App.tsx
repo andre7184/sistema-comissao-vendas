@@ -12,6 +12,7 @@ import VendedoresPage from './users/admin/pages/VendedoresPage';
 import VendasPage from './users/admin/pages/VendasPage'; // <-- 1. IMPORTE A PÁGINA
 import VendedorDetailPage from './users/admin/pages/VendedorDetailPage'; // <-- IMPORTAÇÃO DA NOVA PÁGINA
 import EmpresaDashboardPage from './users/admin/pages/EmpresaDashboardPage';
+import EmpresaHomePage from './users/admin/pages/EmpresaHomePage.tsx';
 import MeusModulosPage from './pages/Modulos';
 
 // Define os papéis para uso nas rotas
@@ -110,6 +111,19 @@ function App() {
                 requiredModule={MODULES.COMISSOES}
               >
                 <EmpresaDashboardPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ROTA PARA A HOME DA EMPRESA (ADMIN) */}
+          <Route
+            path="/empresa/home" // Rota da nova página
+            element={
+              <ProtectedRoute 
+                allowedRoles={[ROLES.ADMIN]} 
+                // Não precisa de módulo específico, todo Admin deve ter acesso
+              >
+                <EmpresaHomePage />
               </ProtectedRoute>
             }
           />

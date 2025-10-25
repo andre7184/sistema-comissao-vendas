@@ -30,12 +30,10 @@ interface FilterProps {
 // --- Lista de Itens BASE ---
 const baseNavItems: NavItem[] = [
     // Dashboard Genérico (se aplicável a todos os roles)
-    { icon: IconHome, label: 'Home', path: '/dashboard', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.VENDEDOR] },
+    { icon: IconHome, label: 'Home', path: '/empresa/home', roles: [ROLES.ADMIN] },
     // Super Admin
     { icon: IconEmpresa, label: 'Gerenciar Empresas', path: '/empresas', roles: [ROLES.SUPER_ADMIN] },
     { icon: IconModulo, label: 'Catálogo de Módulos', path: '/modulos', roles: [ROLES.SUPER_ADMIN] },
-    // Item Fixo do Admin
-    { icon: IconModulo, label: 'Meus Módulos', path: '/empresa/meus-modulos', roles: [ROLES.ADMIN] }, 
     // Vendedor
     { icon: IconVenda, label: 'Minhas Vendas', path: '/minhas-vendas', roles: [ROLES.VENDEDOR] },
 ];
@@ -101,7 +99,7 @@ export const SidebarMenu = ({ filteredItems, currentRole }: { filteredItems: Nav
                     key={item.path}
                     to={item.path}
                     // Ajuste no 'end' para funcionar com múltiplos dashboards
-                    end={item.path === "/dashboard"} 
+                    end={item.path === "/empresa/home"} 
                     className={({ isActive }) => `${baseLinkClass} ${isActive ? activeLinkClass : inactiveLinkClass}`}
                 >
                     {item.icon()} 
