@@ -114,5 +114,5 @@ jobs:
             echo "Recarregando Nginx..."
             sudo /usr/bin/systemctl reload nginx
 
-            echo "✅ Deploy Frontend concluído!"
+            echo "✅ Deploy Frontend concluído com sucesso!"
             echo "   Acessível em: https://${{ secrets.WEB_PROJECT_DOMAIN }}"
