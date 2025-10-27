@@ -1,13 +1,15 @@
 // src/users/superadmin/services/superAdminService.ts
 
-import api from '../../../services/api'; // Importa a instância do Axios
+import api from '../../../services/api'; 
 import type { 
     Empresa, 
     EmpresaRequestDTO, 
     EmpresaUpdateRequestDTO, 
     Modulo,
     ModuloRequestDTO,
-    AtualizarModulosEmpresaRequestDTO // <-- Importa o DTO que definimos no types.ts
+    AtualizarModulosEmpresaRequestDTO,
+    User, // <-- Importa User
+    AdminUsuarioRequestDTO // <-- Importa AdminUsuarioRequestDTO
 } from '../types';
 
 export const superAdminService = {
@@ -17,6 +19,7 @@ export const superAdminService = {
   
   // GET /api/superadmin/empresas
   listarEmpresas: async (): Promise<Empresa[]> => {
+    // A resposta da API deve corresponder à interface Empresa atualizada
     const response = await api.get<Empresa[]>('/api/superadmin/empresas'); 
     return response.data;
   },
@@ -30,6 +33,22 @@ export const superAdminService = {
   // PUT /api/superadmin/empresas/{id}
   atualizarEmpresa: async (id: number, dados: EmpresaUpdateRequestDTO): Promise<Empresa> => {
     const response = await api.put<Empresa>(`/api/superadmin/empresas/${id}`, dados);
+    return response.data;
+  },
+
+  // PUT /api/superadmin/empresas/{id}/modulos
+  associarModulosEmpresa: async (idEmpresa: number, dados: AtualizarModulosEmpresaRequestDTO): Promise<Empresa> => {
+    const response = await api.put<Empresa>(`/api/superadmin/empresas/${idEmpresa}/modulos`, dados);
+    return response.data;
+  },
+
+  // --- FUNÇÃO ADICIONADA PARA CRIAR ADMINS ---
+  /**
+   * Cria um novo usuário Admin para uma empresa específica.
+   * POST /api/superadmin/empresas/{empresaId}/admins
+   */
+  criarAdminUsuario: async (empresaId: number, dados: AdminUsuarioRequestDTO): Promise<User> => {
+    const response = await api.post<User>(`/api/superadmin/empresas/${empresaId}/admins`, dados);
     return response.data;
   },
 
@@ -61,15 +80,4 @@ export const superAdminService = {
     return response.data;
   },
 
-  // --- FUNÇÃO ADICIONADA (Substitui o TODO) ---
-  /**
-   * Associa/Atualiza a lista de módulos ativos de uma empresa
-   * PUT /api/superadmin/empresas/{id}/modulos
-   */
-  associarModulosEmpresa: async (idEmpresa: number, dados: AtualizarModulosEmpresaRequestDTO): Promise<Empresa> => {
-    // A API espera um DTO com "modulolds" [cite: 125]
-    const response = await api.put<Empresa>(`/api/superadmin/empresas/${idEmpresa}/modulos`, dados);
-    // A API retorna a entidade Empresa atualizada [cite: 127]
-    return response.data;
-  },
 };
