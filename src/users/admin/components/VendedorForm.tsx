@@ -1,12 +1,12 @@
 // src/users/admin/components/VendedorForm.tsx
 
-import type { Vendedor, VendedorRequestDTO, VendedorUpdateRequestDTO } from '../types';
-import { useForm, Controller } from 'react-hook-form';
+import type { Vendedor } from '../types';
+import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useEffect } from 'react';
 
-// Tipagem para os dados do formulário
+// Tipagem para os dados do formulário - AGORA USAMOS A MESMA TIPAGEM PARA CRIAÇÃO E EDIÇÃO NO FORM
 interface VendedorFormData {
   nome: string;
   email: string;
@@ -37,9 +37,8 @@ interface VendedorFormProps {
 
 export default function VendedorForm({ initialData, onSubmit, loading, error }: VendedorFormProps) {
   
-  // Define se o formulário está em modo "edição"
   const isEditing = !!initialData;
-
+  
   const defaultValues: VendedorFormData = {
     nome: initialData?.nome || '',
     email: initialData?.email || '',
@@ -51,10 +50,10 @@ export default function VendedorForm({ initialData, onSubmit, loading, error }: 
     defaultValues: defaultValues,
   });
 
-  // Reseta o formulário se os dados iniciais mudarem
+  // Garante que o formulário seja redefinido se initialData mudar (útil para o modal)
   useEffect(() => {
     reset(defaultValues);
-  }, [initialData, reset]);
+  }, [initialData]);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -71,9 +70,7 @@ export default function VendedorForm({ initialData, onSubmit, loading, error }: 
           id="nome"
           type="text"
           {...register('nome')}
-          // API não permite editar nome/email pelo endpoint PUT
-          disabled={isEditing} 
-          className={`input-form ${errors.nome ? 'border-red-500' : 'border-gray-300'} ${isEditing ? 'bg-gray-100' : ''}`}
+          className={`input-form ${errors.nome ? 'border-red-500' : 'border-gray-300'}`} // Removido 'bg-gray-100'
         />
         {errors.nome && <p className="text-xs text-red-500 mt-1">{errors.nome.message}</p>}
       </div>
@@ -85,9 +82,7 @@ export default function VendedorForm({ initialData, onSubmit, loading, error }: 
           id="email"
           type="email"
           {...register('email')}
-          // API não permite editar nome/email pelo endpoint PUT
-          disabled={isEditing}
-          className={`input-form ${errors.email ? 'border-red-500' : 'border-gray-300'} ${isEditing ? 'bg-gray-100' : ''}`}
+          className={`input-form ${errors.email ? 'border-red-500' : 'border-gray-300'}`} // Removido 'bg-gray-100'
         />
         {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>}
       </div>
@@ -99,9 +94,9 @@ export default function VendedorForm({ initialData, onSubmit, loading, error }: 
           id="percentualComissao"
           type="number"
           step="0.01"
-          {...register('percentualComissao')}
+          {...register('percentualComissao', { valueAsNumber: true })} // Adicionado valueAsNumber para garantir que o register trate o input como number
           className={`input-form ${errors.percentualComissao ? 'border-red-500' : 'border-gray-300'}`}
-          placeholder="Ex: 5.5"
+          placeholder="Ex: 5.50"
         />
         {errors.percentualComissao && <p className="text-xs text-red-500 mt-1">{errors.percentualComissao.message}</p>}
       </div>
@@ -112,7 +107,7 @@ export default function VendedorForm({ initialData, onSubmit, loading, error }: 
           className="bg-blue-500 text-white px-6 py-2 rounded shadow hover:bg-blue-600 transition disabled:bg-gray-400"
           disabled={loading}
         >
-          {loading ? 'Salvando...' : (isEditing ? 'Atualizar Comissão' : 'Cadastrar Vendedor')}
+          {loading ? 'Salvando...' : (isEditing ? 'Atualizar Vendedor' : 'Cadastrar Vendedor')}
         </button>
       </div>
     </form>

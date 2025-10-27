@@ -142,6 +142,7 @@ export default function EmpresasPage() {
         isOpen={isFormModalOpen}
         onClose={handleCloseFormModal}
         title={editandoId ? 'Atualizar Empresa' : 'Cadastrar Nova Empresa'}
+        closeOnOutsideClick={false}
       >
         <form onSubmit={handleSubmit}>
            {error && <div className="p-3 mb-4 bg-red-100 text-red-700 border border-red-400 rounded">{error}</div>}

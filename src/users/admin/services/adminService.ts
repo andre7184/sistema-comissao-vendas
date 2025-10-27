@@ -1,14 +1,42 @@
 // src/users/admin/services/adminService.ts
 
 import api from '../../../services/api'; // Importa a instância global do Axios
+
 import type {
-  Vendedor,
+  Vendedor, // Tipo BÁSICO
+  VendedorDetalhado, // <-- NOVO: Tipo DETALHADO
   VendedorCriadoResponseDTO,
   VendedorRequestDTO,
   VendedorUpdateRequestDTO,
   Venda,
-  VendaRequestDTO
+  VendaRequestDTO,
+  VendedorNested,
+  EmpresaDashboardData,
+  EmpresaInfo, // <-- NOVO
+  ModuloDetalhe, // <-- NOVO
 } from '../types';
+
+interface VendedorListAPIDTO {
+    idVendedor: number; // O campo ID da API
+    percentualComissao: number;
+    idUsuario: number; // NOVO: Campo da API
+    nome: string;
+    email: string;
+    qtdVendas: number; 
+    valorTotalVendas: number; 
+    idEmpresa: number; // A API retorna, mesmo que VendedorDetalhado já tenha
+    [key: string]: any; 
+}
+
+// DTO interno para o que a API REALMENTE retorna de VENDA (para listarVendas)
+interface VendaAPIDTO {
+    id: number;
+    valorVenda: number;
+    dataVenda: string;
+    valorComissaoCalculado: number;
+    vendedor: VendedorNested; // O objeto aninhado que a API agora retorna
+    [key: string]: any; 
+} 
 
 export const adminService = {
   
@@ -19,8 +47,34 @@ export const adminService = {
    * GET /api/vendedores
    */
   listarVendedores: async (): Promise<Vendedor[]> => {
-    const response = await api.get<Vendedor[]>('/api/vendedores');
-    return response.data;
+    // 1. Usa a DTO da API para receber os dados
+    const response = await api.get<VendedorListAPIDTO[]>('/api/vendedores');
+    
+    // 2. Mapeamento dos campos da API para a sua interface Vendedor
+    // NOTA: É necessário que a interface Vendedor em types.ts tenha os campos:
+    // qtdVendas, valorTotalVendas e idUsuario
+    return response.data.map(item => ({
+        // Mapeamento: 'idVendedor' da API vira 'id' na sua interface
+        id: item.idVendedor,
+        
+        // Mapeamento direto (nomes iguais)
+        nome: item.nome,
+        email: item.email,
+        percentualComissao: item.percentualComissao,
+        idEmpresa: item.idEmpresa,
+        
+        // CAMPOS DE LISTAGEM (que DEVEM ser adicionados em types.ts)
+        // Se Vendedor não tiver estes, a linha abaixo dará erro de tipagem.
+        qtdVendas: item.qtdVendas,
+        valorTotalVendas: item.valorTotalVendas,
+        idUsuario: item.idUsuario,
+
+    // Como VendedorDetalhado é usado para /detalhes, 
+    // é mais simples fazer VendedorDetalhado extends Vendedor
+    // e adicionar estes campos faltantes na interface Vendedor
+    // para que a listagem /vendedores funcione sem erros.
+
+    } as Vendedor)); // Cast para Vendedor para garantir a tipagem de retorno
   },
 
   /**
@@ -41,6 +95,18 @@ export const adminService = {
     return response.data;
   },
 
+  buscarDetalhesVendedor: async (idVendedor: number): Promise<VendedorDetalhado> => {
+    // Aqui usamos VendedorDetalhado, pois a API já deve retornar o objeto formatado
+    const response = await api.get<VendedorDetalhado>(`/api/vendedores/${idVendedor}/detalhes`);
+    return response.data;
+  },
+
+  /**
+   * NOVO SERVIÇO: Busca os dados detalhados de um vendedor, incluindo métricas
+   * GET /api/vendedores/{id}/detalhes
+   * Retorna VendedorDetalhado
+   */
+
   // --- GERENCIAMENTO DE VENDAS ---
 
   /**
@@ -48,8 +114,17 @@ export const adminService = {
    * GET /api/vendas
    */
   listarVendas: async (): Promise<Venda[]> => {
-    const response = await api.get<Venda[]>('/api/vendas');
-    return response.data;
+    // Usa VendaAPIDTO para garantir que o mapeamento é correto
+    const response = await api.get<VendaAPIDTO[]>('/api/vendas'); 
+    
+    // Mapeamento: Transforma o DTO da API para o tipo Venda esperado
+    return response.data.map(item => ({
+      id: item.id,
+      valorVenda: item.valorVenda,
+      dataVenda: item.dataVenda,
+      valorComissaoCalculado: item.valorComissaoCalculado,
+      vendedor: item.vendedor, // Objeto Vendedor aninhado
+    })) as Venda[]; // Fazemos um cast para Venda[]
   },
 
   /**
@@ -57,7 +132,33 @@ export const adminService = {
    * POST /api/vendas
    */
   lancarVenda: async (dados: VendaRequestDTO): Promise<Venda> => {
-    const response = await api.post<Venda>('/api/vendas', dados);
+    const response = await api.post<Venda>(`/api/vendas`, dados);
     return response.data;
-  }
+  },
+
+  // --- DASHBOARD GERENCIAL ---
+
+  /**
+   * NOVO SERVIÇO: Busca todos os dados gerenciais da empresa para o Dashboard.
+   * GET /api/dashboard/empresa
+   */
+  buscarDashboardEmpresa: async (): Promise<EmpresaDashboardData> => {
+    const response = await api.get<EmpresaDashboardData>('/api/dashboard/empresa');
+    return response.data;
+  },
+
+  buscarInfoEmpresa: async (): Promise<EmpresaInfo> => {
+    const response = await api.get<EmpresaInfo>('/api/empresa/me');
+    return response.data;
+  },
+
+  /**
+   * Busca detalhes dos módulos disponíveis no catálogo geral
+   * GET /api/modulos/catalogo (Exemplo de endpoint)
+   */
+  listarDetalhesModulos: async (): Promise<ModuloDetalhe[]> => {
+    // Retorna a lista completa de módulos com nome, chave, preço, etc.
+    const response = await api.get<ModuloDetalhe[]>('/api/modulos/catalogo'); 
+    return response.data;
+  },
 };

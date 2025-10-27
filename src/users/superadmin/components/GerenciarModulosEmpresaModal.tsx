@@ -76,6 +76,7 @@ export default function GerenciarModulosEmpresaModal({ empresa, onClose, onSucce
       isOpen={!!empresa}
       onClose={onClose}
       title={`Gerenciar Módulos de: ${empresa?.nomeFantasia || ''}`}
+      closeOnOutsideClick={false}
     >
       <div className="space-y-4">
         {loading && <p>Carregando módulos...</p>}

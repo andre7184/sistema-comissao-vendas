@@ -6,6 +6,7 @@ import type { Vendedor, VendedorRequestDTO, VendedorUpdateRequestDTO } from '../
 import { adminService } from '../services/adminService';
 import GenericFormModal from '../../../components/GenericFormModal';
 import VendedorForm from '../components/VendedorForm';
+import { useNavigationUtils } from '../hooks/useNavigationUtils';
 
 // Tipagem para os dados do VendedorForm
 interface VendedorFormData {
@@ -26,10 +27,12 @@ export default function VendedoresPage() {
   const [formLoading, setFormLoading] = useState(false); // Loading do submit do form
   const [formError, setFormError] = useState<string | null>(null);
 
+    const { handleAbrirVendedor } = useNavigationUtils();
+
   const fetchVendedores = async () => {
     setLoading(true);
     try {
-      const data = await adminService.listarVendedores(); // [cite: 166]
+      const data = await adminService.listarVendedores(); //
       setVendedores(data);
     } catch (err) {
       console.error("Erro ao buscar vendedores:", err);
@@ -70,18 +73,21 @@ export default function VendedoresPage() {
       if (editandoVendedor) {
         // ATUALIZAR (PUT)
         const updateData: VendedorUpdateRequestDTO = {
-          percentualComissao: data.percentualComissao // 
+          nome: data.nome, // Agora enviamos o nome na edição
+          email: data.email, // Agora enviamos o email na edição
+          percentualComissao: data.percentualComissao 
         };
-        await adminService.atualizarComissaoVendedor(editandoVendedor.id, updateData); // [cite: 177]
+        // A chamada ao serviço usa o DTO completo VendedorUpdateRequestDTO
+        await adminService.atualizarComissaoVendedor(editandoVendedor.id, updateData); //
       
       } else {
         // CADASTRAR (POST)
         const createData: VendedorRequestDTO = {
           nome: data.nome,
           email: data.email,
-          percentualComissao: data.percentualComissao // [cite: 145]
+          percentualComissao: data.percentualComissao //
         };
-        const response = await adminService.cadastrarVendedor(createData); // [cite: 143]
+        const response = await adminService.cadastrarVendedor(createData); //
         
         // Mostrar a senha temporária 
         setSenhaGerada({nome: response.nome, senha: response.senhaTemporaria});
@@ -116,6 +122,7 @@ export default function VendedoresPage() {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         title={editandoVendedor ? 'Editar Vendedor' : 'Cadastrar Novo Vendedor'}
+        closeOnOutsideClick={false}
       >
         <VendedorForm
           onSubmit={handleSubmit}
@@ -157,7 +164,6 @@ export default function VendedoresPage() {
             <thead className="bg-gray-50">
               <tr>
                 <th className="th-cell">Nome</th>
-                <th className="th-cell">Email (Login)</th>
                 <th className="th-cell">Comissão (%)</th>
                 <th className="th-cell">Ações</th>
               </tr>
@@ -166,10 +172,17 @@ export default function VendedoresPage() {
               {vendedores.map((vendedor) => (
                 <tr key={vendedor.id}>
                   <td className="td-cell">
-                    <div className="font-medium text-gray-900">{vendedor.nome}</div>
-                  </td>
-                  <td className="td-cell">
-                    {vendedor.email}
+                    
+                    <div className="font-medium text-gray-900">
+                      <a
+                        onClick={() => handleAbrirVendedor(vendedor.id)}
+                        className="text-indigo-600 hover:text-indigo-800 font-medium cursor-pointer"
+                        title="Abrir página de edição do vendedor"
+                      >
+                        <span className="text-sm">{vendedor.nome}</span>
+                    </a>
+                    <p className="text-xs text-gray-500">({vendedor.email})</p>
+                    </div>
                   </td>
                   <td className="td-cell">
                     {vendedor.percentualComissao.toFixed(2)}%
@@ -179,7 +192,7 @@ export default function VendedoresPage() {
                       onClick={() => handleOpenModalEdicao(vendedor)}
                       className="text-blue-600 hover:text-blue-800 font-medium"
                     >
-                      Editar Comissão
+                      Editar
                     </button>
                   </td>
                 </tr>

@@ -7,6 +7,8 @@ interface GenericFormModalProps {
   onClose: () => void;
   title: string;
   children: ReactNode; // O <form> será passado aqui
+  // NOVO: Propriedade para controlar o fechamento externo
+  closeOnOutsideClick?: boolean; 
 }
 
 export default function GenericFormModal({
@@ -14,16 +16,21 @@ export default function GenericFormModal({
   onClose,
   title,
   children,
+  closeOnOutsideClick = true, // Define 'true' como padrão
 }: GenericFormModalProps) {
   if (!isOpen) {
     return null;
   }
 
+  // Define qual função deve ser chamada no clique do overlay
+  const handleOverlayClick = closeOnOutsideClick ? onClose : (e: React.MouseEvent) => e.stopPropagation();
+
   return (
     // Overlay de fundo
     <div
       className="fixed inset-0 z-40 bg-black bg-opacity-50 flex justify-center items-center"
-      onClick={onClose} // Fecha ao clicar no fundo
+      // Usa a nova função para controlar o fechamento
+      onClick={handleOverlayClick} 
     >
       {/* Conteúdo do Modal */}
       <div

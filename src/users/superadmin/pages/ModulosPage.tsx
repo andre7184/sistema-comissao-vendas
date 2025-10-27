@@ -119,6 +119,7 @@ export default function ModulosPage() {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         title={editandoModulo ? 'Editar Módulo' : 'Cadastrar Novo Módulo'}
+        closeOnOutsideClick={false}
       >
         <ModuloForm
           onSubmit={handleSubmit}

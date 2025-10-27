@@ -1,0 +1,122 @@
+name: Deploy Frontend React (comissoesweb)
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 1. Checkout do Código
+        uses: actions/checkout@v3
+
+      - name: 2. Login no Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: 3. Construir e Enviar Imagem Docker (Frontend Nginx)
+        # Usa o Dockerfile multi-stage criado
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          # Usa o secret NOVO: WEB_PROJECT_REPO_NAME (Ex: comissoesweb)
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.WEB_PROJECT_REPO_NAME }}:latest
+
+      - name: 4. Conectar no Servidor, Configurar Nginx e Fazer Deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            PROJECT_NAME="${{ secrets.WEB_PROJECT_REPO_NAME }}" # Ex: comissoesweb
+            PROJECT_DIR="/home/deployer/${{ secrets.WEB_PROJECT_REPO_NAME }}" # Novo diretório
+            WEB_HOST_PORT="8084" # Porta que o contêiner Nginx Frontend usará no VPS
+
+            mkdir -p $PROJECT_DIR
+            cd $PROJECT_DIR
+
+            # --- Cria o docker-compose.yml (Frontend Nginx) ---
+            cat << EOF > docker-compose.yml
+            services:
+              frontend:
+                image: ${{ secrets.DOCKERHUB_USERNAME }}/${PROJECT_NAME}:latest
+                container_name: \${PROJECT_NAME}_frontend
+                restart: unless-stopped
+                ports:
+                  # Expondo na porta 8084 do host para Nginx
+                  - "127.0.0.1:\${WEB_HOST_PORT}:80" 
+                networks:
+                  - frontend-net
+            
+            networks:
+              frontend-net:
+            EOF
+
+            # --- Cria a configuração do Nginx (para o Frontend) ---
+            NGINX_CONF_NAME="${PROJECT_NAME}.conf" # Ex: comissoesweb.conf
+            
+            cat << EOF > nginx.conf
+            ### Bloco 1/2: Redireciona HTTP (Porta 80) para HTTPS ###
+            server { 
+                listen 80;
+                server_name ${{ secrets.WEB_PROJECT_DOMAIN }}; 
+                return 301 https://\$host\$request_uri; 
+            }
+            
+            ### Bloco 2/2: Serviço HTTPS Principal (Frontend React - Porta 443) ###
+            server {
+                listen 443 ssl http2;
+                server_name ${{ secrets.WEB_PROJECT_DOMAIN }}; # Ex: comissoesweb.promptweb.com.br
+
+                # Configurações SSL (Certbot)
+                ssl_certificate /etc/letsencrypt/live/promptweb.com.br/fullchain.pem; 
+                ssl_certificate_key /etc/letsencrypt/live/promptweb.com.br/privkey.pem; 
+                # ... (includes SSL) ...
+
+                # Location: Roteia TUDO para o Nginx Frontend na porta 8084
+                location / { 
+                    proxy_pass http://127.0.0.1:\${WEB_HOST_PORT}; 
+                    proxy_set_header Host \$host; 
+                    proxy_set_header X-Real-IP \$remote_addr; 
+                    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for; 
+                    proxy_set_header X-Forwarded-Proto https; 
+                }
+            }
+            EOF
+
+            # --- Bloco de Administração do Servidor ---
+            NGINX_CONF_FILE="/etc/nginx/sites-available/\$NGINX_CONF_NAME" # Ex: sites-available/comissoesweb.conf
+            NGINX_LINK_FILE="/etc/nginx/sites-enabled/\$NGINX_CONF_NAME"
+
+            echo "Instalando Nginx para \${PROJECT_NAME}..."
+            sudo /usr/bin/mv nginx.conf $NGINX_CONF_FILE
+            sudo /usr/bin/ln -sf $NGINX_CONF_FILE $NGINX_LINK_FILE
+            
+            if ! sudo /usr/sbin/nginx -t; then echo "Erro Nginx!"; exit 1; fi
+
+            # --- Executa o Deploy Docker ---
+            echo "Parando contêineres antigos..."
+            docker compose down --remove-orphans 
+
+            echo "Removendo contêineres nomeados..."
+            docker rm -f \${PROJECT_NAME}_frontend || true 
+
+            echo "Baixando nova imagem..."
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${PROJECT_NAME}:latest
+
+            echo "Iniciando Frontend..."
+            docker compose up -d
+
+            echo "Recarregando Nginx..."
+            sudo /usr/bin/systemctl reload nginx
+
+            echo "✅ Deploy Frontend concluído!"
+            echo "   Acessível em: https://${{ secrets.WEB_PROJECT_DOMAIN }}"
