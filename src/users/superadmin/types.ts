@@ -23,17 +23,27 @@ export interface Modulo {
 }
 
 /**
- * Interface para a entidade Empresa (Tenant)
+ * Interface para representar um usuário Admin associado a uma Empresa (na listagem)
+ */
+export interface Usuarios {
+  id: number; // ID do usuário
+  email: string;
+  nome: string;
+}
+
+/**
+ * Interface para a entidade Empresa (Tenant) - ATUALIZADA
  */
 export interface Empresa {
   id: number;
   nomeFantasia: string; 
   cnpj: string;         
-  nome: string;
-  email: string;
-  // --- CORREÇÃO AQUI ---
-  // Voltando para um array de Objetos Modulo, que é o que o seu erro indica ser o correto.
+  dataCadastro: string; 
+  razaoSocial: string | null; 
   modulosAtivos: Modulo[]; 
+  
+  // Array de usuários Admin associados
+  usuariosAdmin: Usuarios[]; 
 }
 
 // DTO para POST /api/superadmin/modulos
@@ -66,4 +76,31 @@ export interface EmpresaUpdateRequestDTO {
  */
 export interface AtualizarModulosEmpresaRequestDTO {
   moduloIds: number[]; // Array de IDs
+}
+
+// --- NOVOS TIPOS PARA USUÁRIOS ADMIN ---
+
+/**
+ * Entidade Usuário (retornada ao criar um Admin via API SuperAdmin)
+ */
+export interface User {
+    id: number;
+    nome: string;
+    email: string;
+    role: string; // Ex: ROLE_ADMIN
+    dataCriacao: string;
+    empresa: { 
+        id: number;
+        nomeFantasia: string;
+        cnpj: string;
+    };
+}
+
+/**
+ * DTO para Criação de Usuário Admin (Body do POST /empresas/{id}/admins)
+ */
+export interface AdminUsuarioRequestDTO {
+  nome: string;
+  email: string;
+  senha: string;
 }
