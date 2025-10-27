@@ -91,7 +91,7 @@ jobs:
             NGINX_CONF_FILE="/etc/nginx/sites-available/${{ secrets.WEB_PROJECT_DOMAIN }}" 
             NGINX_LINK_FILE="/etc/nginx/sites-enabled/${{ secrets.WEB_PROJECT_DOMAIN }}"
 
-            echo "Instalando Nginx para ${{ secrets.WEB_PROJECT_REPO_NAME }}..."
+            echo "Instalando e Configurando Nginx para ${{ secrets.WEB_PROJECT_REPO_NAME }}..."
             sudo /usr/bin/mv /home/deployer/${{ secrets.WEB_PROJECT_REPO_NAME }}/nginx.conf $NGINX_CONF_FILE
             sudo /usr/bin/ln -sf $NGINX_CONF_FILE $NGINX_LINK_FILE
             
