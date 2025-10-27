@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import DashboardLayout from '../../../layouts/DashboardLayout';
-import type { VendedorDetalhado, VendedorUpdateRequestDTO } from '../types';
+import type { VendedorDetalhado } from '../types';
 import { adminService } from '../services/adminService';
 import { formatarParaMoeda } from '../../../utils/formatters'; 
 // IMPORTS DO RECHARTS
