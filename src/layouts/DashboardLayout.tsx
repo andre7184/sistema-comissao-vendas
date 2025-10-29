@@ -50,7 +50,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         } transition-transform duration-300 ease-in-out`}
       >
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold text-blue-600">Comissões</h2>
+          <h2 className="text-lg font-bold text-blue-600">Gerenciamento</h2>
           <button onClick={() => setSidebarOpen(false)} className="md:hidden p-1 text-gray-600 hover:text-gray-900">
             <IconClose />
           </button>
@@ -69,8 +69,8 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             <IconMenu />
           </button>
           
-          <h1 className="text-lg font-semibold text-gray-800 invisible md:visible">
-            Painel de Controle
+          <h1 className="text-xl font-semibold text-gray-800 invisible md:visible">
+            <span>📦</span>Raiz - Sistema de Vendas
           </h1>
           
           <button onClick={handleLogout} className="text-sm text-red-500 hover:underline">
@@ -85,7 +85,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         
         {/* Footer (Opcional) */}
         <footer className="h-10 bg-white border-t flex items-center justify-center text-xs text-gray-500">
-            &copy; {new Date().getFullYear()} Meu Sistema de Comissões.
+            &copy; {new Date().getFullYear()} Meu Sistema de vendas.
         </footer>
       </div>
     </div>
