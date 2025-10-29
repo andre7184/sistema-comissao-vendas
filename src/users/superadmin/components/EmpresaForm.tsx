@@ -9,7 +9,6 @@ interface EmpresaFormData {
     nomeFantasia: string;
     cnpj: string;
     razaoSocial: string;
-    // Campos apenas para criação (opcionais no tipo geral)
     adminNome?: string;
     adminEmail?: string;
     adminSenha?: string;
@@ -33,7 +32,6 @@ export default function EmpresaForm({ initialData, onSubmit, loading, error }: E
                 nomeFantasia: initialData.nomeFantasia,
                 cnpj: initialData.cnpj,
                 razaoSocial: initialData.razaoSocial || '',
-                // Campos de admin não são preenchidos na edição
             };
         }
         // Valores padrão para criação
@@ -124,10 +122,8 @@ export default function EmpresaForm({ initialData, onSubmit, loading, error }: E
                 placeholder="Razão Social *"
                 value={formData.razaoSocial}
                 onChange={handleChange}
-                // Desabilitado na edição se a API PUT não aceitar
-                disabled={isEditing}
-                className={`input-form w-full ${isEditing ? 'disabled:bg-gray-100 cursor-not-allowed' : ''}`}
-                required={!isEditing} // Obrigatório apenas no cadastro
+                className="input-form w-full"
+                required
             />
 
             {/* Campos do Admin (apenas para cadastro) */}

@@ -60,6 +60,7 @@ export interface ModuloRequestDTO {
 export interface EmpresaRequestDTO {
   nomeFantasia: string;
   cnpj: string;
+  razaoSocial: string;
   adminNome: string;
   adminEmail: string;
   adminSenha: string;
@@ -69,6 +70,7 @@ export interface EmpresaRequestDTO {
 export interface EmpresaUpdateRequestDTO {
     nomeFantasia: string;
     cnpj: string;
+    razaoSocial: string;
 }
 
 /**
