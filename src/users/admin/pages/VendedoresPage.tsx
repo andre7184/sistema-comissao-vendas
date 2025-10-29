@@ -108,7 +108,7 @@ export default function VendedoresPage() {
   return (
     <DashboardLayout>
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold">Gerenciar Vendedores</h2>
+        <h2 className="text-xl font-bold text-gray-800 mb-6">Gerenciar Vendedores</h2>
         <button
           onClick={handleOpenModalCadastro}
           className="bg-blue-500 text-white px-4 py-2 rounded shadow hover:bg-blue-600 transition"

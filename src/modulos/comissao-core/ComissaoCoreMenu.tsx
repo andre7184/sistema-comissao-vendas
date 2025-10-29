@@ -1,40 +1,47 @@
 // src/modules/comissao-core/ComissaoCoreMenu.tsx
 
-import type { ReactNode } from 'react';
 // Importa NavItem de navigationConfig
 import type { NavItem } from '../../config/navigationConfig'; 
-// Importa ROLES e MODULES do novo arquivo constants
+// Importa ROLES e MODULES do arquivo constants
 import { ROLES, MODULES } from '../../config/constants'; 
 
 // --- Definição LOCAL dos Ícones usados neste módulo ---
-const IconVendedor = (): ReactNode => <span>👥</span>;
-const IconVenda = (): ReactNode => <span>💰</span>;
-const IconDashboard = (): ReactNode => <span>📊</span>; 
+const IconVendedor = () => <span>👥</span>;
+const IconVenda = () => <span>🏦</span>;
+const IconDashboard = () => <span>📊</span>; 
 // =======================================================
+
+// Define o título do grupo
+const GROUP_LABEL = "Comissões";
 
 /**
  * Define e exporta os itens de menu específicos do módulo COMISSAO_CORE.
  */
 export const comissaoCoreNavItems: NavItem[] = [
     { 
+        // ATENÇÃO: Verifique se a rota '/empresa/dashboard' está correta para o Dashboard Gerencial.
+        // Se for '/admin-dashboard', corrija aqui.
         path: "/empresa/dashboard",        
         label: "Dashboard Gerencial",        
-        icon: IconDashboard,             // Usa o ícone definido localmente
-        roles: [ROLES.ADMIN],            // Usa ROLES importado de constants
-        module: MODULES.COMISSOES        // Usa MODULES importado de constants
+        icon: IconDashboard,             
+        roles: [ROLES.ADMIN],            
+        module: MODULES.COMISSOES,
+        groupLabel: GROUP_LABEL // <-- ADICIONADO       
     },
     { 
         path: "/vendedores",             
         label: "Gerenciar Vendedores",   
-        icon: IconVendedor,              // Usa o ícone definido localmente
-        roles: [ROLES.ADMIN],            // Usa ROLES importado de constants
-        module: MODULES.COMISSOES        // Usa MODULES importado de constants
+        icon: IconVendedor,              
+        roles: [ROLES.ADMIN],            
+        module: MODULES.COMISSOES,
+        groupLabel: GROUP_LABEL // <-- ADICIONADO       
     },
     { 
         path: "/vendas",                 
         label: "Gerenciar Vendas",      
-        icon: IconVenda,                 // Usa o ícone definido localmente
-        roles: [ROLES.ADMIN],            // Usa ROLES importado de constants
-        module: MODULES.COMISSOES        // Usa MODULES importado de constants
+        icon: IconVenda,                 
+        roles: [ROLES.ADMIN],            
+        module: MODULES.COMISSOES,
+        groupLabel: GROUP_LABEL // <-- ADICIONADO        
     },
 ];
