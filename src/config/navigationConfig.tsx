@@ -34,8 +34,8 @@ const baseNavItems: NavItem[] = [
     // Super Admin
     { icon: IconEmpresa, label: 'Gerenciar Empresas', path: '/empresas', roles: [ROLES.SUPER_ADMIN] },
     { icon: IconModulo, label: 'Catálogo de Módulos', path: '/modulos', roles: [ROLES.SUPER_ADMIN] },
-    // Vendedor
-    { icon: IconVenda, label: 'Minhas Vendas', path: '/minhas-vendas', roles: [ROLES.VENDEDOR] },
+    { icon: IconModulo, label: 'Meus Módulos', path: '/empresa/meus-modulos', roles: [ROLES.ADMIN] }, 
+    { icon: IconVendaBase, label: 'Minhas Vendas', path: '/minhas-vendas', roles: [ROLES.VENDEDOR] },
 ];
 
 // --- Lista COMPLETA (Base + Módulos) ---
@@ -69,10 +69,9 @@ export function useFilteredNavItems({ currentRole, currentPermissoes }: FilterPr
     }
     // Lógica Padrão para outros Roles
     else {
-      // Filtra com base no role e verifica o módulo APENAS se o item o exigir
       return roleAllowedItems.filter(item => {
           if (item.module) return permissoesSet.has(item.module);
-          return true;
+          return true; 
       });
     }
 
@@ -82,7 +81,7 @@ export function useFilteredNavItems({ currentRole, currentPermissoes }: FilterPr
 }
 
 
-// --- Componente de Renderização dos Links (SidebarMenu - LÓGICA DE GRUPO MANTIDA) ---
+// --- Componente de Renderização dos Links (SidebarMenu - LÓGICA DE GRUPO REVISADA) ---
 
 interface SidebarMenuProps {
     filteredItems: NavItem[];
@@ -94,30 +93,53 @@ export const SidebarMenu = ({ filteredItems, currentRole }: SidebarMenuProps) =>
     const inactiveLinkClass = "text-gray-600 hover:bg-gray-100 hover:text-gray-900";
     // Classes base
     const baseLinkClass = "flex items-center space-x-3 p-3 rounded-lg text-base font-medium transition duration-150 ease-in-out";
-    const baseGroupClass = "flex items-center space-x-3 p-3 rounded-lg text-base font-semibold transition duration-150 ease-in-out w-full justify-between cursor-pointer";
-    // Classes para subitens (com recuo)
-    const subItemBaseClass = "flex items-center space-x-2 p-2 rounded-md text-sm font-medium transition duration-150 ease-in-out ml-4";
-
+    const baseGroupClass = "flex items-center space-x-3 p-3 rounded-lg text-base font-semibold transition duration-150 ease-in-out w-full justify-between"; 
+    const subItemBaseClass = "flex items-center space-x-2 p-2 rounded-md text-sm font-medium transition duration-150 ease-in-out ml-4"; // Adicionado ml-4 para recuo
+    
+    // Estado para controlar os grupos abertos/fechados
     const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() => {
         const initialState: Record<string, boolean> = {};
-        filteredItems.forEach(item => { if (item.groupLabel && initialState[item.groupLabel] === undefined) { initialState[item.groupLabel] = true; } });
+        filteredItems.forEach(item => {
+            // Inicializa APENAS os grupos que existem nos itens filtrados
+            if (item.groupLabel && initialState[item.groupLabel] === undefined) {
+                initialState[item.groupLabel] = true; // Começa aberto
+            }
+        });
         return initialState;
     });
 
+    // Agrupa os itens pelo groupLabel (GARANTIR QUE ESTÁ CORRETO)
     const groupedItems = useMemo(() => {
-        const groups: Record<string, NavItem[]> = {}; const ungrouped: NavItem[] = [];
-        filteredItems.forEach(item => { if (item.groupLabel) { if (!groups[item.groupLabel]) groups[item.groupLabel] = []; groups[item.groupLabel].push(item); } else { ungrouped.push(item); } });
+        const groups: Record<string, NavItem[]> = {};
+        const ungrouped: NavItem[] = [];
+        
+        filteredItems.forEach(item => {
+            // Verifica se a propriedade groupLabel existe E tem valor
+            if (item.groupLabel && typeof item.groupLabel === 'string') { 
+                if (!groups[item.groupLabel]) {
+                    groups[item.groupLabel] = [];
+                }
+                groups[item.groupLabel].push(item);
+            } else {
+                ungrouped.push(item);
+            }
+        });
+        // DEBUG: Verifique se os grupos estão sendo criados corretamente
+        // console.log("Itens Agrupados:", groups);
+        // console.log("Itens Não Agrupados:", ungrouped);
         return { groups, ungrouped };
     }, [filteredItems]);
 
-    const toggleGroup = (label: string) => { setOpenGroups(prev => ({ ...prev, [label]: !prev[label] })); };
+    const toggleGroup = (label: string) => {
+        setOpenGroups(prev => ({ ...prev, [label]: !prev[label] }));
+    };
 
     return (
-        <nav className="space-y-1 px-1">
+        <nav className="space-y-1 px-2"> 
             {/* 1. Renderiza itens NÃO agrupados */}
             {groupedItems.ungrouped.map(item => (
                 <NavLink
-                    key={item.path}
+                    key={item.path} // Usa path como chave
                     to={item.path}
                     // 'end' é importante para a rota exata da home do admin
                     end={item.path === '/empresa/home'}
