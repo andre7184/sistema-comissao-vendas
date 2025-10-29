@@ -1,5 +1,32 @@
 // src/users/admin/types.ts
 
+// Entidade User (Como retornado por GET /api/empresa/admins e POST/PUT)
+// Ajustada para corresponder à API
+export interface AdminEmpresa {
+    id: number;
+    nome: string;
+    email: string;
+    role: string; // Ex: ROLE_ADMIN
+    dataCriacao: string;
+    empresaId: number; // A API retorna o ID da empresa
+}
+
+// DTO para Criação de Usuário Admin (POST /api/empresa/admins)
+// Já estava correto, mas renomeado para clareza
+export interface AdminEmpresaCreateDTO {
+  nome: string;
+  email: string;
+  senha: string; // A API espera 'senha'
+}
+
+// DTO para Atualização de Usuário Admin (PUT /api/empresa/admins/{id})
+// Baseado na documentação da API
+export interface AdminEmpresaUpdateDTO {
+    nome: string;
+    email: string; // A API permite atualizar email
+    senha?: string; // Senha pode ser opcional na atualização
+}
+
 // Interface base para a entidade Vendedor (usada em listarVendedores e VendaForm)
 export interface Vendedor {
   id: number;
@@ -65,7 +92,7 @@ export interface Venda {
   valorVenda: number;
   dataVenda: string; // A API retorna uma data (provavelmente string ISO)
   valorComissaoCalculado: number;
-  
+  descricaoVenda: string;
   // ATUALIZADO: Adicionado o objeto completo do vendedor
   vendedor: VendedorNested; 
 }
@@ -73,6 +100,12 @@ export interface Venda {
 // DTO para a requisição de Lançamento de Venda
 export interface VendaRequestDTO {
   vendedorId: number;
+  descricaoVenda: string;
+  valorVenda: number;
+}
+
+export interface VendaUpdateRequestDTO {
+  descricaoVenda: string;
   valorVenda: number;
 }
 

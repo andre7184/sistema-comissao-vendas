@@ -76,7 +76,7 @@ export default function EmpresaDashboardPage() {
 
     return (
         <DashboardLayout>
-            <h1 className="text-3xl font-bold text-gray-800 mb-6">Dashboard Gerencial</h1>
+            <h1 className="text-xl font-bold text-gray-800 mb-6">Dashboard Gerencial</h1>
             
             {/* CARDS DE MÉTRICAS GLOBAIS (ATUALIZADOS) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5 mb-8">

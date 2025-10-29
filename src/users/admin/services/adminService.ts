@@ -3,6 +3,9 @@
 import api from '../../../services/api'; // Importa a instância global do Axios
 
 import type {
+  AdminEmpresa,                   
+  AdminEmpresaCreateDTO, 
+  AdminEmpresaUpdateDTO,
   Vendedor, // Tipo BÁSICO
   VendedorDetalhado, // <-- NOVO: Tipo DETALHADO
   VendedorCriadoResponseDTO,
@@ -10,6 +13,7 @@ import type {
   VendedorUpdateRequestDTO,
   Venda,
   VendaRequestDTO,
+  VendaUpdateRequestDTO,
   VendedorNested,
   EmpresaDashboardData,
   EmpresaInfo, // <-- NOVO
@@ -31,6 +35,7 @@ interface VendedorListAPIDTO {
 // DTO interno para o que a API REALMENTE retorna de VENDA (para listarVendas)
 interface VendaAPIDTO {
     id: number;
+    descricaoVenda: string;
     valorVenda: number;
     dataVenda: string;
     valorComissaoCalculado: number;
@@ -40,6 +45,42 @@ interface VendaAPIDTO {
 
 export const adminService = {
   
+  /**
+   * Lista os usuários com ROLE_ADMIN da empresa do Admin logado
+   * GET /api/empresa/admins (Backend filtra pela empresa do token)
+   */
+  listarAdminsDaEmpresa: async (): Promise<AdminEmpresa[]> => { // Retorna array de User
+    const response = await api.get<AdminEmpresa[]>('/api/empresa/admins'); 
+    return response.data;
+  },
+
+  /**
+   * Cria um novo usuário com ROLE_ADMIN para a empresa do Admin logado
+   * POST /api/empresa/admins
+   */
+  criarAdminDaEmpresa: async (dados: AdminEmpresaCreateDTO): Promise<AdminEmpresa> => { // Retorna User
+    const response = await api.post<AdminEmpresa>('/api/empresa/admins', dados);
+    return response.data; 
+  },
+
+  /**
+   * Atualiza os dados de um usuário Admin da empresa do Admin logado
+   * PUT /api/empresa/admins/{id}
+   */
+  atualizarAdminDaEmpresa: async (idUsuario: number, dados: AdminEmpresaUpdateDTO): Promise<AdminEmpresa> => { // Retorna User
+    const response = await api.put<AdminEmpresa>(`/api/empresa/admins/${idUsuario}`, dados);
+    return response.data;
+  },
+  
+  /**
+   * Opcional: Busca detalhes de um usuário específico (se necessário)
+   * GET /api/empresa/admins/{id}
+   */
+  buscarAdminDaEmpresa: async (idUsuario: number): Promise<AdminEmpresa> => {
+     const response = await api.get<AdminEmpresa>(`/api/empresa/admins/${idUsuario}`);
+     return response.data;
+  },  
+
   // --- GERENCIAMENTO DE VENDEDORES ---
 
   /**
@@ -121,6 +162,7 @@ export const adminService = {
     return response.data.map(item => ({
       id: item.id,
       valorVenda: item.valorVenda,
+      descricaoVenda: item.descricaoVenda,
       dataVenda: item.dataVenda,
       valorComissaoCalculado: item.valorComissaoCalculado,
       vendedor: item.vendedor, // Objeto Vendedor aninhado
@@ -135,6 +177,16 @@ export const adminService = {
     const response = await api.post<Venda>(`/api/vendas`, dados);
     return response.data;
   },
+
+  /**
+   * Atualiza uma venda
+   * POST /api/vendas/{id}
+   */
+  atualizarVenda: async (idVenda: number, dados: VendaUpdateRequestDTO): Promise<Venda> => {
+    const response = await api.put<Venda>(`/api/vendas/${idVenda}`, dados);
+    return response.data;
+  },
+
 
   // --- DASHBOARD GERENCIAL ---
 

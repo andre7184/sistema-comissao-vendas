@@ -12,7 +12,8 @@ import VendedoresPage from './users/admin/pages/VendedoresPage';
 import VendasPage from './users/admin/pages/VendasPage'; // <-- 1. IMPORTE A PÁGINA
 import VendedorDetailPage from './users/admin/pages/VendedorDetailPage'; // <-- IMPORTAÇÃO DA NOVA PÁGINA
 import EmpresaDashboardPage from './users/admin/pages/EmpresaDashboardPage';
-import EmpresaHomePage from './users/admin/pages/EmpresaHomePage.tsx';
+import EmpresaHomePage from './users/admin/pages/EmpresaHomePage';
+import GerenciarUsuariosAdminPage from './users/admin/pages/EmpresaAdminPage';
 import MeusModulosPage from './pages/Modulos';
 
 // Define os papéis para uso nas rotas
@@ -128,6 +129,22 @@ function App() {
             }
           />
           
+          {/* === ROTAS ADMIN === */}
+          {/* ... (Rotas /empresa/home, /admin-dashboard, /vendedores, /vendas, etc.) ... */}
+          
+          {/* NOVO: Rota para Gerenciar Usuários Admin */}
+          <Route
+            path="/empresa/admins" // Exemplo de rota
+            element={
+              <ProtectedRoute 
+                allowedRoles={[ROLES.ADMIN]} 
+                // Provavelmente não precisa de módulo, é função administrativa
+              >
+                <GerenciarUsuariosAdminPage />
+              </ProtectedRoute>
+            }
+          />
+
           <Route path="*" element={<h1>404 | Página Não Encontrada</h1>} />
         </Routes>
       </BrowserRouter>
