@@ -80,14 +80,15 @@ export default function EmpresasPage() {
             if (editandoEmpresa) {
                 const updateData: EmpresaUpdateRequestDTO = { 
                     nomeFantasia: formData.nomeFantasia, 
-                    cnpj: formData.cnpj 
+                    cnpj: formData.cnpj, 
+                    razaoSocial: formData.razaoSocial
                 };
                 await superAdminService.atualizarEmpresa(editandoEmpresa.id, updateData);
             } else {
                 const createData: EmpresaRequestDTO = {
                     nomeFantasia: formData.nomeFantasia,
                     cnpj: formData.cnpj,
-                    // razaoSocial: formData.razaoSocial, // Adicione se DTO/API aceitar
+                    razaoSocial: formData.razaoSocial, // Adicione se DTO/API aceitar
                     adminNome: formData.adminNome,
                     adminEmail: formData.adminEmail,
                     adminSenha: formData.adminSenha,
