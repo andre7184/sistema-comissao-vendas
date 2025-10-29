@@ -60,7 +60,7 @@ export default function EmpresaHomePage() {
 
     return (
         <DashboardLayout>
-            <h1 className="text-3xl font-bold text-gray-800 mb-8">Bem-vindo(a)!</h1>
+            <h1 className="text-xl font-bold text-gray-800 mb-6">Bem-vindo(a)!</h1>
 
             {/* SEÇÃO 1: DADOS DA EMPRESA */}
             <section className="bg-white p-6 rounded-lg shadow-md mb-8">

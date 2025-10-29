@@ -101,7 +101,7 @@ export default function VendedorForm({ initialData, onSubmit, loading, error }: 
         {errors.percentualComissao && <p className="text-xs text-red-500 mt-1">{errors.percentualComissao.message}</p>}
       </div>
 
-      <div className="pt-4 text-right">
+      <div className="pt-4 text-center">
         <button
           type="submit"
           className="bg-blue-500 text-white px-6 py-2 rounded shadow hover:bg-blue-600 transition disabled:bg-gray-400"
