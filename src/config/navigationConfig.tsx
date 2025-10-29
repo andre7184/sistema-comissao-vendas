@@ -22,19 +22,18 @@ export interface NavItem {
   module?: typeof MODULES[keyof typeof MODULES];
 }
 
+// --- Interface para as Props do Hook de Filtro ---
 interface FilterProps {
-    currentRole: string | null;
-    currentPermissoes: string[] | null;
+    currentRole: string | null; // Propriedade necessária
+    currentPermissoes: string[] | null; // Propriedade necessária
 }
 
 // --- Lista de Itens BASE ---
 const baseNavItems: NavItem[] = [
-    // Dashboard Genérico (se aplicável a todos os roles)
-    { icon: IconHome, label: 'Home', path: '/empresa/home', roles: [ROLES.ADMIN] },
-    // Super Admin
+    { icon: IconHome, label: 'Dashboard', path: '/dashboard', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.VENDEDOR] },
     { icon: IconEmpresa, label: 'Gerenciar Empresas', path: '/empresas', roles: [ROLES.SUPER_ADMIN] },
     { icon: IconModulo, label: 'Catálogo de Módulos', path: '/modulos', roles: [ROLES.SUPER_ADMIN] },
-    // Vendedor
+    { icon: IconModulo, label: 'Meus Módulos', path: '/empresa/meus-modulos', roles: [ROLES.ADMIN] }, 
     { icon: IconVenda, label: 'Minhas Vendas', path: '/minhas-vendas', roles: [ROLES.VENDEDOR] },
 ];
 
@@ -44,49 +43,37 @@ const allNavItems: NavItem[] = [
     ...comissaoCoreNavItems, 
 ];
 
-// --- Hook de Filtro para o Menu (LÓGICA AJUSTADA) ---
-export function useFilteredNavItems({ currentRole, currentPermissoes }: FilterProps): NavItem[] {
+// --- Hook de Filtro para o Menu ---
+export function useFilteredNavItems({ currentRole, currentPermissoes }: FilterProps): NavItem[] { // Usa FilterProps
   
   const filteredItems = useMemo(() => {
     if (!currentRole) return [];
     
     const roleAsLiteral = currentRole as AllowedRoleType; 
     const permissoesSet = new Set(currentPermissoes || []);
-    const hasComissaoModule = permissoesSet.has(MODULES.COMISSOES); // Verifica se tem o módulo
+    const hasComissaoModule = permissoesSet.has(MODULES.COMISSOES);
 
-    // Filtra todos os itens que o Role PODE ver
     const roleAllowedItems = allNavItems.filter(item => item.roles.includes(roleAsLiteral));
 
-    // Lógica Específica para ADMIN
     if (roleAsLiteral === ROLES.ADMIN) {
       if (hasComissaoModule) {
-        // Se tem o módulo, retorna itens DO módulo + itens base SEM módulo (como Meus Módulos)
         return roleAllowedItems.filter(item => item.module === MODULES.COMISSOES || !item.module);
       } else {
-        // Se NÃO tem o módulo, retorna APENAS itens base SEM módulo
         return roleAllowedItems.filter(item => !item.module);
       }
-    } 
-    // Lógica Padrão para outros Roles (SUPER_ADMIN, VENDEDOR)
-    else {
-      // Filtra com base no role e verifica o módulo APENAS se o item o exigir
+    } else {
       return roleAllowedItems.filter(item => {
-          if (item.module) {
-              return permissoesSet.has(item.module);
-          }
-          return true; // Se não exige módulo, permite
+          if (item.module) return permissoesSet.has(item.module);
+          return true; 
       });
     }
-
   }, [currentRole, currentPermissoes]);
 
   return filteredItems;
 }
 
 // --- Componente de Renderização dos Links ---
-// (SidebarMenu permanece igual)
 export const SidebarMenu = ({ filteredItems, currentRole }: { filteredItems: NavItem[]; currentRole: string | null }) => {
-    // ... (JSX inalterado) ...
     const activeLinkClass = "bg-blue-100 text-blue-700";
     const inactiveLinkClass = "text-gray-600 hover:bg-gray-100 hover:text-gray-900";
     const baseLinkClass = "flex items-center space-x-3 p-3 rounded-lg text-base font-medium transition duration-150 ease-in-out";
@@ -98,8 +85,7 @@ export const SidebarMenu = ({ filteredItems, currentRole }: { filteredItems: Nav
                 <NavLink
                     key={item.path}
                     to={item.path}
-                    // Ajuste no 'end' para funcionar com múltiplos dashboards
-                    end={item.path === "/empresa/home"} 
+                    end={item.path === "/dashboard" || item.path === "/admin-dashboard"} 
                     className={({ isActive }) => `${baseLinkClass} ${isActive ? activeLinkClass : inactiveLinkClass}`}
                 >
                     {item.icon()} 
@@ -107,7 +93,6 @@ export const SidebarMenu = ({ filteredItems, currentRole }: { filteredItems: Nav
                 </NavLink>
             ))}
             
-            {/* Mensagem se o Admin não tiver o módulo */}
             {currentRole === ROLES.ADMIN && !hasComissaoLinks && (
                  <div className='p-3 text-xs text-red-600 bg-red-50 rounded-md mt-4 border border-red-200'>
                     Módulo 'Comissões Core' não está ativo. Funcionalidades limitadas.
