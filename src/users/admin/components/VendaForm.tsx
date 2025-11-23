@@ -152,6 +152,7 @@ export default function VendaForm({ initialData, vendedores, onSubmit, loading, 
           <input
             id="vendedorSearch"
             type="text"
+            autoComplete="nope"
             placeholder={isEditing ? 'Vendedor (não pode ser alterado)' : 'Digite o nome ou email...'} 
             value={searchTerm}
             onChange={handleSearchChange}

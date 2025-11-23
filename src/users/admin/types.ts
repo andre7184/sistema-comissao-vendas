@@ -95,6 +95,7 @@ export interface Venda {
   descricaoVenda: string;
   // ATUALIZADO: Adicionado o objeto completo do vendedor
   vendedor: VendedorNested; 
+  status: string; // NOVO campo de status
 }
 
 // DTO para a requisição de Lançamento de Venda

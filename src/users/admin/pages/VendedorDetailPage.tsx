@@ -1,10 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import DashboardLayout from '../../../layouts/DashboardLayout';
 import type { VendedorDetalhado } from '../types';
 import { adminService } from '../services/adminService';
 import { formatarParaMoeda } from '../../../utils/formatters'; 
-// IMPORTS DO RECHARTS
 import { 
     BarChart, 
     Bar, 
@@ -17,15 +16,12 @@ import {
 } from 'recharts';
 import VendedorForm from '../components/VendedorForm';
 import GenericFormModal from '../../../components/GenericFormModal';
-
+import ConfirmationModal from '../../../components/ConfirmationModal'; // <-- NOVO IMPORT
 
 // =====================================================================
 // HELPERS
 // =====================================================================
 
-/**
- * Formata a data ISO para um formato mais legível (DD/MM/AAAA)
- */
 const formatarDataCadastro = (dataISO: string): string => {
     try {
         if (!dataISO) return 'N/A';
@@ -39,9 +35,6 @@ const formatarDataCadastro = (dataISO: string): string => {
     }
 };
 
-/**
- * Componente simples para exibir uma métrica
- */
 interface MetricCardProps {
     title: string;
     value: string | number;
@@ -75,11 +68,16 @@ export default function VendedorDetailPage() {
     const [formLoading, setFormLoading] = useState(false);
     const [formError, setFormError] = useState<string | null>(null);
 
-    // Garante que o array de histórico é inicializado (necessário para o gráfico)
+    // Estados para Reset de Senha
+    const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false); // Controla o popup de confirmação
+    const [resetLoading, setResetLoading] = useState(false); // Loading do botão de confirmar reset
+    const [senhaGerada, setSenhaGerada] = useState<{ nome: string, senha: string } | null>(null); // Exibe a nova senha
+
+    // Garante que o array de histórico é inicializado
     const historicoRendimentos = vendedor?.historicoRendimentos || [];
 
-
-    useEffect(() => {
+    // Busca os dados do vendedor (useCallback para permitir recarregamento)
+    const fetchVendedorDetalhes = useCallback(async () => {
         const idVendedor = parseInt(id || '0', 10);
 
         if (!id || idVendedor <= 0) {
@@ -88,37 +86,32 @@ export default function VendedorDetailPage() {
             return;
         }
 
-        const fetchVendedorDetalhes = async () => {
-            setLoading(true);
-            setError(null);
-            try {
-                // Chama o novo serviço de busca detalhada
-                const data = await adminService.buscarDetalhesVendedor(idVendedor);
-                setVendedor(data);
-            } catch (err) {
-                console.error("Erro ao buscar detalhes do vendedor:", err);
-                setError('Não foi possível carregar os detalhes do vendedor. Verifique se o endpoint da API está ativo.');
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchVendedorDetalhes();
+        setLoading(true);
+        setError(null);
+        try {
+            const data = await adminService.buscarDetalhesVendedor(idVendedor);
+            setVendedor(data);
+        } catch (err) {
+            console.error("Erro ao buscar detalhes do vendedor:", err);
+            setError('Não foi possível carregar os detalhes do vendedor.');
+        } finally {
+            setLoading(false);
+        }
     }, [id]);
 
+    useEffect(() => {
+        fetchVendedorDetalhes();
+    }, [fetchVendedorDetalhes]);
+
     
-    // Handler para o formulário de edição (Comissão, Nome e Email)
+    // --- AÇÃO 1: ATUALIZAR DADOS (NOME/EMAIL/COMISSÃO) ---
     const handleUpdate = async (data: any) => { 
-        const idVendedor = vendedor?.id;
-        if (!idVendedor) return;
+        if (!vendedor) return;
         setFormLoading(true);
         setFormError(null);
         try {
-            // Reutiliza o serviço de atualização
-            await adminService.atualizarComissaoVendedor(idVendedor, data);
-            
-            // Recarrega os dados e fecha o modal
-            fetchVendedorDetalhes(); 
+            await adminService.atualizarComissaoVendedor(vendedor.id, data);
+            fetchVendedorDetalhes(); // Recarrega os dados na tela
             setIsModalOpen(false);
         } catch (e: any) {
             const errorMsg = e.response?.data?.message || 'Erro ao atualizar dados do vendedor.';
@@ -128,167 +121,118 @@ export default function VendedorDetailPage() {
         }
     };
 
+    // --- AÇÃO 2: RESETAR SENHA (Prepara o modal) ---
+    const handleResetClick = () => {
+        setIsResetConfirmOpen(true);
+    };
 
-    if (loading) {
-        return (
-            <DashboardLayout>
-                <div className="flex justify-center items-center h-48">
-                    <p className="text-lg text-gray-600 font-semibold">Carregando detalhes do vendedor...</p>
-                </div>
-            </DashboardLayout>
-        );
-    }
+    // --- AÇÃO 2.1: CONFIRMAR RESET (Versão Corrigida: Backend gera a senha) ---
+    const handleConfirmResetSenha = async () => {
+        if (!vendedor) return;
+        
+        setResetLoading(true);
+        try {
+            // 1. Chama o serviço SEM passar senha (o backend vai gerar)
+            // O retorno 'res' conterá { novaSenha: "..." }
+            const res = await adminService.resetarSenhaVendedor(vendedor.id);
+            
+            setIsResetConfirmOpen(false); // Fecha a confirmação
+            
+            // 2. Abre o modal de sucesso com a senha QUE O BACKEND RETORNOU
+            setSenhaGerada({
+                nome: vendedor.nome,
+                senha: res.senhaTemporaria
+            });
+        } catch (err) {
+            console.error('Erro ao resetar senha:', err);
+            alert('Erro ao resetar a senha. Verifique o console ou tente novamente.');
+            setIsResetConfirmOpen(false);
+        } finally {
+            setResetLoading(false);
+        }
+    };
 
+
+    if (loading) return <DashboardLayout><div className="flex justify-center items-center h-48"><p>Carregando...</p></div></DashboardLayout>;
+    
     if (error) {
         return (
             <DashboardLayout>
                 <div className="p-6 bg-red-100 text-red-700 rounded-lg border border-red-400">
                     <h1 className="text-2xl font-bold mb-4">Erro</h1>
                     <p>{error}</p>
-                    <button 
-                        onClick={() => navigate('/vendedores')}
-                        className="mt-4 text-blue-600 hover:text-blue-800"
-                    >
-                        Voltar para a lista de Vendedores
-                    </button>
+                    <button onClick={() => navigate('/vendedores')} className="mt-4 text-blue-600 hover:text-blue-800">Voltar</button>
                 </div>
             </DashboardLayout>
         );
     }
 
-    if (!vendedor) {
-        return (
-            <DashboardLayout>
-                <div className="p-6 bg-yellow-100 text-yellow-700 rounded-lg">
-                    <h1 className="text-2xl font-bold mb-4">Vendedor Não Encontrado</h1>
-                    <button 
-                        onClick={() => navigate('/vendedores')}
-                        className="mt-4 text-blue-600 hover:text-blue-800"
-                    >
-                        Voltar para a lista de Vendedores
-                    </button>
-                </div>
-            </DashboardLayout>
-        );
-    }
+    if (!vendedor) return <DashboardLayout><p>Vendedor não encontrado.</p></DashboardLayout>;
     
-    // Desestrutura os dados do vendedor para uso no JSX
-    const { 
-        nome, 
-        email, 
-        percentualComissao, 
-        dataCadastro, 
-        qtdVendas, 
-        valorTotalVendas, 
-        mediaComissao,
-    } = vendedor;
+    const { nome, email, percentualComissao, dataCadastro, qtdVendas, valorTotalVendas, mediaComissao } = vendedor;
 
 
     return (
         <DashboardLayout>
-            {/* HEADER COM DETALHES BÁSICOS */}
-            <header className="mb-6 pb-4 border-b flex justify-between items-center">
+            {/* HEADER */}
+            <header className="mb-6 pb-4 border-b flex justify-between items-start">
                 <div>
                     <h1 className="text-3xl font-extrabold text-gray-900">{nome}</h1>
                     <p className="text-lg text-gray-600">{email}</p>
                     <p className="text-sm text-gray-500">Cadastrado em: {formatarDataCadastro(dataCadastro)}</p>
                 </div>
-                <button
-                    onClick={() => setIsModalOpen(true)}
-                    className="bg-indigo-500 text-white px-4 py-2 rounded shadow hover:bg-indigo-600 transition"
-                >
-                    Editar Vendedor
-                </button>
+                
+                <div className="flex flex-col gap-3 items-end">
+                    <button
+                        onClick={() => setIsModalOpen(true)}
+                        className="bg-indigo-600 text-white px-4 py-2 rounded shadow hover:bg-indigo-700 transition w-40"
+                    >
+                        Editar Vendedor
+                    </button>
+                    <button
+                        onClick={handleResetClick}
+                        className="bg-white border border-orange-500 text-orange-600 px-4 py-2 rounded shadow hover:bg-orange-50 transition w-40 text-sm font-medium"
+                    >
+                        Resetar Senha
+                    </button>
+                </div>
             </header>
             
             {/* CARDS DE MÉTRICAS */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                <MetricCard 
-                    title="Comissão Atual" 
-                    value={`${percentualComissao.toFixed(2)}%`} 
-                    colorClass="text-indigo-600"
-                />
-                <MetricCard 
-                    title="Vendas Realizadas" 
-                    value={qtdVendas} 
-                    colorClass="text-blue-600"
-                />
-                <MetricCard 
-                    title="Valor Total Vendido" 
-                    value={formatarParaMoeda(valorTotalVendas)} 
-                    colorClass="text-green-600"
-                />
-                <MetricCard 
-                    title="Média de Comissão" 
-                    value={`${mediaComissao.toFixed(2)}%`} 
-                    colorClass="text-purple-600"
-                />
+                <MetricCard title="Comissão Atual" value={`${percentualComissao.toFixed(2)}%`} colorClass="text-indigo-600"/>
+                <MetricCard title="Vendas Realizadas" value={qtdVendas} colorClass="text-blue-600"/>
+                <MetricCard title="Valor Total Vendido" value={formatarParaMoeda(valorTotalVendas)} colorClass="text-green-600"/>
+                <MetricCard title="Média de Comissão" value={`${mediaComissao.toFixed(2)}%`} colorClass="text-purple-600"/>
             </div>
 
-            {/* GRÁFICOS E RENDIMENTOS */}
+            {/* GRÁFICOS E HISTÓRICO */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                
-                {/* GRÁFICO DE BARRAS FUNCIONAL (2/3 da largura em telas grandes) */}
+                {/* Gráfico */}
                 <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow-md">
                     <h2 className="text-xl font-semibold mb-4 text-gray-800">Rendimento Mensal</h2>
-                    
                     {historicoRendimentos.length > 0 ? (
                         <ResponsiveContainer width="100%" height={300}>
-                            <BarChart
-                                data={historicoRendimentos}
-                                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                                barCategoryGap="20%" // Espaçamento entre grupos de barras
-                            >
+                            <BarChart data={historicoRendimentos} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                                 <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
                                 <XAxis dataKey="mesAno" stroke="#6b7280" /> 
-                                
-                                {/* Eixo Y Esquerdo: Valor Monetário */}
-                                <YAxis 
-                                    yAxisId="left" 
-                                    stroke="#10B981" 
-                                    // CORREÇÃO DOMAIN: Garante que o valor total (R$ 800.00) caiba
-                                    domain={[0, (dataMax: number) => dataMax * 1.2]} 
-                                    tickFormatter={(value) => `R$ ${value.toFixed(0)}`}
-                                />
-                                
-                                <Tooltip 
-                                    formatter={(value, name) => {
-                                        if (typeof value === 'number') {
-                                            return [formatarParaMoeda(value), name];
-                                        }
-                                        return [value, name];
-                                    }}
-                                />
+                                <YAxis yAxisId="left" stroke="#10B981" domain={[0, (dataMax: number) => dataMax * 1.2]} tickFormatter={(value) => `R$ ${value.toFixed(0)}`} />
+                                <Tooltip formatter={(value: any) => typeof value === 'number' ? formatarParaMoeda(value) : value} />
                                 <Legend />
-                                
-                                {/* BARRA 1: Valor Vendido (Verde) */}
-                                <Bar 
-                                    dataKey="valorVendido" // CORRIGIDO: Agora usa a chave correta da API
-                                    name="Valor Vendido" 
-                                    fill="#10B981" 
-                                    yAxisId="left" 
-                                />
-                                
-                                {/* BARRA 2: Comissão (Azul) */}
-                                <Bar 
-                                    dataKey="valorComissao" 
-                                    name="Comissão (R$)" 
-                                    fill="#2563EB" 
-                                    yAxisId="left"
-                                />
+                                <Bar dataKey="valorVendido" name="Valor Vendido" fill="#10B981" yAxisId="left" />
+                                <Bar dataKey="valorComissao" name="Comissão (R$)" fill="#2563EB" yAxisId="left" />
                             </BarChart>
                         </ResponsiveContainer>
                     ) : (
                          <div className="h-64 bg-gray-50 flex items-center justify-center border border-dashed rounded-lg">
-                             <p className="text-gray-500">Nenhum dado histórico de rendimento disponível para o gráfico.</p>
+                             <p className="text-gray-500">Nenhum dado histórico disponível.</p>
                          </div>
                     )}
                 </div>
 
-                {/* HISTÓRICO EM TABELA (1/3 da largura em telas grandes) */}
+                {/* Tabela */}
                 <div className="bg-white p-6 rounded-lg shadow-md">
-                    <h2 className="text-xl font-semibold mb-4 text-gray-800">Detalhes do Histórico</h2>
-                    <p className="text-sm text-gray-500 mb-4">Comissão Base: {percentualComissao.toFixed(2)}%</p>
+                    <h2 className="text-xl font-semibold mb-4 text-gray-800">Histórico Detalhado</h2>
                     <div className="overflow-y-auto h-72">
                         {historicoRendimentos.length > 0 ? (
                             <table className="w-full text-sm">
@@ -309,15 +253,14 @@ export default function VendedorDetailPage() {
                                     ))}
                                 </tbody>
                             </table>
-                        ) : (
-                            <p className="text-gray-500 pt-4">Nenhum histórico disponível.</p>
-                        )}
+                        ) : <p className="text-gray-500 pt-4">Nenhum histórico disponível.</p>}
                     </div>
                 </div>
-
             </div>
 
-            {/* MODAL DE EDIÇÃO */}
+            {/* --- MODAIS --- */}
+
+            {/* 1. Modal de Edição */}
             <GenericFormModal
                 isOpen={isModalOpen}
                 onClose={() => {
@@ -334,10 +277,48 @@ export default function VendedorDetailPage() {
                     error={formError}
                 />
             </GenericFormModal>
+
+            {/* 2. Modal de Confirmação (Resetar Senha) - NOVO */}
+            <ConfirmationModal
+                isOpen={isResetConfirmOpen}
+                onClose={() => setIsResetConfirmOpen(false)}
+                onConfirm={handleConfirmResetSenha}
+                title="Resetar Senha de Acesso"
+                message={`ATENÇÃO: Você está prestes a gerar uma NOVA senha para o vendedor ${nome}.\n\nA senha antiga deixará de funcionar imediatamente. Esta ação não pode ser desfeita.`}
+                confirmText="Sim, Resetar Senha"
+                cancelText="Cancelar"
+                isDanger={true}
+                isLoading={resetLoading}
+            />
+
+            {/* 3. Modal de Sucesso (Nova Senha Gerada) - REUTILIZADO/NOVO */}
+            <GenericFormModal
+                isOpen={!!senhaGerada}
+                onClose={() => setSenhaGerada(null)}
+                title="Senha Resetada com Sucesso"
+            >
+                <div className="text-center p-2">
+                    <div className="mb-4 text-gray-600">
+                        A senha de acesso para <strong>{senhaGerada?.nome}</strong> foi redefinida.
+                        <br/>
+                        Copie a nova senha abaixo e envie para o vendedor:
+                    </div>
+                    
+                    <div className="bg-gray-100 p-4 rounded border border-gray-300 mb-6 flex justify-center items-center gap-2">
+                        <span className="text-2xl font-mono font-bold text-blue-600 select-all">
+                            {senhaGerada?.senha}
+                        </span>
+                    </div>
+
+                    <button 
+                        onClick={() => setSenhaGerada(null)}
+                        className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition w-full"
+                    >
+                        Fechar
+                    </button>
+                </div>
+            </GenericFormModal>
+
         </DashboardLayout>
     );
-}
-
-function fetchVendedorDetalhes() {
-  throw new Error('Function not implemented.');
 }

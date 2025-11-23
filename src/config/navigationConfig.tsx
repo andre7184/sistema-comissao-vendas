@@ -35,7 +35,8 @@ const baseNavItems: NavItem[] = [
     { icon: IconEmpresa, label: 'Gerenciar Empresas', path: '/empresas', roles: [ROLES.SUPER_ADMIN] },
     { icon: IconModulo, label: 'Catálogo de Módulos', path: '/modulos', roles: [ROLES.SUPER_ADMIN] },
     // Vendedor
-    { icon: IconVenda, label: 'Minhas Vendas', path: '/minhas-vendas', roles: [ROLES.VENDEDOR] },
+    { icon: IconVenda, label: 'Histórico e Comissões', path: '/portal-vendas', roles: [ROLES.VENDEDOR] },
+    { icon: IconVenda, label: 'Lançar Minha Venda', path: '/portal-vendas/lancar', roles: [ROLES.VENDEDOR] },
 ];
 
 // --- Lista COMPLETA (Base + Módulos) ---

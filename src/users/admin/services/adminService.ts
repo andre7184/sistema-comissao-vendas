@@ -143,6 +143,18 @@ export const adminService = {
   },
 
   /**
+   * Reseta a senha do vendedor (JÁ EXISTENTE).
+   */
+  /**
+   * Solicita ao backend o reset de senha.
+   * PUT /api/vendedores/{id}/reset-senha
+   */
+  resetarSenhaVendedor: async (idVendedor: number): Promise<{ senhaTemporaria: string }> => {
+    // Não enviamos mais corpo na requisição (segundo parâmetro é null ou vazio)
+    const response = await api.put<{ senhaTemporaria: string }>(`/api/vendedores/${idVendedor}/reset-senha`);
+    return response.data; // O backend retorna { "novaSenha": "..." }
+  },
+  /**
    * NOVO SERVIÇO: Busca os dados detalhados de um vendedor, incluindo métricas
    * GET /api/vendedores/{id}/detalhes
    * Retorna VendedorDetalhado
@@ -166,6 +178,7 @@ export const adminService = {
       dataVenda: item.dataVenda,
       valorComissaoCalculado: item.valorComissaoCalculado,
       vendedor: item.vendedor, // Objeto Vendedor aninhado
+      status: item.status, // Novo campo de status
     })) as Venda[]; // Fazemos um cast para Venda[]
   },
 
@@ -184,6 +197,31 @@ export const adminService = {
    */
   atualizarVenda: async (idVenda: number, dados: VendaUpdateRequestDTO): Promise<Venda> => {
     const response = await api.put<Venda>(`/api/vendas/${idVenda}`, dados);
+    // Mapeamento: Transforma o DTO da API para o tipo Venda esperado
+    return response.data;
+  },
+  
+  /**
+   * Aprova uma venda pendente
+   * Retorna a o objeto da venda aprovada
+   * PUT /api/vendas/{id}/aprovar
+   * @param idVenda
+   * @returns Venda
+   */
+  aprovarVenda: async (idVenda: number): Promise<Venda> => {
+    const response = await api.put<Venda>(`/api/vendas/${idVenda}/aprovar`);
+    return response.data;
+  },
+
+  /**
+   * Cancela uma venda pendente
+   * Retorna o objeto da venda cancelada
+   * PUT /api/vendas/{id}/cancelar
+   * @param idVenda
+   * @returns Venda
+   */
+  cancelarVenda: async (idVenda: number): Promise<Venda> => {
+    const response = await api.put<Venda>(`/api/vendas/${idVenda}/cancelar`);
     return response.data;
   },
 

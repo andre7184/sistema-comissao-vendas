@@ -14,6 +14,8 @@ import VendedorDetailPage from './users/admin/pages/VendedorDetailPage'; // <-- 
 import EmpresaDashboardPage from './users/admin/pages/EmpresaDashboardPage';
 import EmpresaHomePage from './users/admin/pages/EmpresaHomePage';
 import GerenciarUsuariosAdminPage from './users/admin/pages/EmpresaAdminPage';
+import MinhasVendasPage from './users/vendedores/pages/MinhasVendasPage';
+import LancarMinhaVendaPage from './users/vendedores/pages/LancarMinhaVendaPage';
 import MeusModulosPage from './pages/Modulos';
 
 // Define os papéis para uso nas rotas
@@ -145,6 +147,25 @@ function App() {
             }
           />
 
+          {/* ROTA PARA MINHAS VENDAS (VENDEDOR) */}
+          <Route
+            path="/portal-vendas"
+            element={
+              <ProtectedRoute allowedRoles={[ROLES.VENDEDOR]}>
+                <MinhasVendasPage />
+              </ProtectedRoute>
+            }
+          />
+          {/* NOVA ROTA: Lançamento de Venda Rápido */}
+          <Route
+            path="/portal-vendas/lancar" 
+            element={
+              <ProtectedRoute allowedRoles={[ROLES.VENDEDOR]}>
+                <LancarMinhaVendaPage />
+              </ProtectedRoute>
+            }
+          />
+          
           <Route path="*" element={<h1>404 | Página Não Encontrada</h1>} />
         </Routes>
       </BrowserRouter>
