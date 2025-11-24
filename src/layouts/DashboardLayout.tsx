@@ -4,141 +4,159 @@ import { useContext, useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthContext';
 
-// --- 1. SEUS IMPORTS DE NAVEGAÇÃO (Mantidos) ---
+// Imports de Navegação
 import { useFilteredNavItems, SidebarMenu } from '../config/navigationConfig';
 
-// --- 2. NOVO IMPORT: Modal de Alterar Senha ---
+// Import do Modal de Senha
 import AlterarSenhaModal from '../components/AlterarSenhaModal';
 
-// Ícones
-const IconMenu = () => <span className="text-2xl">☰</span>;
-const IconClose = () => <span className="text-2xl">X</span>;
-const IconUser = () => <span>👤</span>; // Ícone para o menu de usuário
+// NOVOS ÍCONES LUCIDE PARA O LAYOUT
+import { Menu, X, User, LogOut, KeyRound, ChevronDown, Building } from 'lucide-react';
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
-  // --- 3. CONTEXTO ATUALIZADO (Incluindo userNome) ---
   const { role, permissoes, userNome, logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  // --- 4. ESTADOS ---
-  const [sidebarOpen, setSidebarOpen] = useState(false); // Menu Lateral (Mobile)
-  const [isMenuOpen, setIsMenuOpen] = useState(false);   // Menu Dropdown do Usuário
-  const [isSenhaModalOpen, setIsSenhaModalOpen] = useState(false); // Modal de Senha
+  // Estados
+  const [sidebarOpen, setSidebarOpen] = useState(false); 
+  const [isMenuOpen, setIsMenuOpen] = useState(false);   
+  const [isSenhaModalOpen, setIsSenhaModalOpen] = useState(false); 
 
-  // --- 5. SUA LÓGICA DE NAVEGAÇÃO (Mantida) ---
+  // Lógica de Navegação
   const filteredNavItems = useFilteredNavItems({
     currentRole: role,
     currentPermissoes: permissoes,
   });
 
-  const renderNavLinks = () => (
-      <SidebarMenu filteredItems={filteredNavItems} currentRole={role} />
-  );
-
-  // --- 6. HANDLERS DO MENU DE USUÁRIO ---
   const handleLogout = () => {
     logout();
     navigate('/', { replace: true });
   };
 
+  // Funções do Dropdown
   const toggleMenu = () => setIsMenuOpen(prev => !prev);
   const closeMenu = () => setIsMenuOpen(false);
 
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
-      {/* Overlay (Mobile) */}
+    // Fundo 'surface' (cinza claro) para todo o app
+    <div className="flex h-screen bg-surface text-gray-800 font-sans overflow-hidden">
+      
+      {/* Overlay Mobile */}
       {sidebarOpen && (
         <div 
-          className="fixed inset-0 z-20 bg-black opacity-50 md:hidden" 
+          className="fixed inset-0 z-40 bg-gray-900/50 backdrop-blur-sm md:hidden" 
           onClick={() => setSidebarOpen(false)}
         ></div>
       )}
 
-      {/* Sidebar (Sua implementação original) */}
+      {/* --- SIDEBAR PROFISSIONAL --- */}
       <aside
-        className={`fixed inset-y-0 left-0 z-30 w-64 bg-white shadow-xl p-4 md:static md:translate-x-0 
-        transform ${
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } transition-transform duration-300 ease-in-out`}
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 shadow-sm transform transition-transform duration-300 ease-in-out md:static md:translate-x-0 
+        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
       >
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-lg text-blue-600 font-bold px-2">Gerenciamento</h2>
-          <button onClick={() => setSidebarOpen(false)} className="md:hidden p-1 text-gray-600 hover:text-gray-900">
-            <IconClose />
+        {/* Logo Area */}
+        <div className="flex items-center justify-between h-16 px-6 border-b border-gray-100 bg-white">
+          <div className="flex items-center gap-2 text-brand-700">
+            <div className="p-1.5 bg-brand-50 rounded-lg">
+                <Building size={24} className="text-brand-600" />
+            </div>
+            <span className="text-lg font-bold tracking-tight text-gray-900">Gestão<span className="text-brand-600">Pro</span></span>
+          </div>
+          <button onClick={() => setSidebarOpen(false)} className="md:hidden text-gray-500 hover:text-brand-600">
+            <X size={24} />
           </button>
         </div>
+
+        {/* Menu Items */}
         <div className="flex-1 overflow-y-auto py-4">
-            {renderNavLinks()}
+            {/* Renderiza o menu usando a lógica filtrada */}
+            <SidebarMenu filteredItems={filteredNavItems} currentRole={role} />
+        </div>
+        
+        {/* Footer Sidebar */}
+        <div className="p-4 border-t border-gray-100 bg-gray-50">
+            <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-brand-100 flex items-center justify-center text-brand-700 font-bold text-xs">
+                    {userNome?.charAt(0).toUpperCase() || 'U'}
+                </div>
+                <div className="overflow-hidden">
+                    <p className="text-xs font-semibold text-gray-900 truncate">{userNome || 'Usuário'}</p>
+                    <p className="text-[10px] text-gray-500 truncate uppercase">{role?.replace('ROLE_', '')}</p>
+                </div>
+            </div>
         </div>
       </aside>
 
-      {/* Main content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header */}
-        <header className="bg-white shadow h-16 flex justify-between items-center px-4 md:px-6">
-          {/* Botão Hambúrguer (Mobile) */}
-          <button onClick={() => setSidebarOpen(true)} className="md:hidden p-1 text-gray-600 hover:text-gray-900">
-            <IconMenu />
+      {/* --- CONTEÚDO PRINCIPAL --- */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        
+        {/* Header Superior */}
+        <header className="bg-white h-16 border-b border-gray-200 flex justify-between items-center px-4 sm:px-6 lg:px-8 shadow-sm relative z-30">
+          <button onClick={() => setSidebarOpen(true)} className="md:hidden text-gray-500 hover:text-brand-600 p-1 rounded-md hover:bg-gray-100 transition">
+            <Menu size={24} />
           </button>
           
-          <h1 className="text-xl font-bold text-gray-800 invisible md:visible">
-            <span className="text-red-500 mr-2">💰</span>
-            Sistema de Comissões
+          <h1 className="text-lg font-semibold text-gray-700 invisible md:visible">
+            Painel de Controle
           </h1>
           
-          {/* --- 7. NOVO MENU DROPDOWN DE USUÁRIO --- */}
+          {/* Menu Dropdown de Usuário */}
           <div className="relative">
             <button 
               onClick={toggleMenu} 
-              className="flex items-center space-x-2 text-sm text-gray-700 hover:text-blue-600 focus:outline-none"
+              className="flex items-center gap-2 py-1.5 px-3 rounded-full hover:bg-gray-50 border border-transparent hover:border-gray-200 transition-all focus:outline-none"
             >
-              <div className="p-1 bg-gray-100 rounded-full"><IconUser /></div>
-              <div className="flex flex-col items-start">
-                  <span className="hidden sm:inline font-medium leading-tight">{userNome || 'Usuário'}</span>
-                  <span className="hidden sm:inline text-[10px] text-gray-500 leading-tight">
-                    {role?.replace('ROLE_', '')}
-                  </span>
+              <div className="hidden md:flex flex-col items-end mr-1">
+                  <span className="text-sm font-medium text-gray-700 leading-none">{userNome?.split(' ')[0]}</span>
               </div>
-              <span className="text-xs ml-1">▼</span>
+              <div className="p-1 bg-brand-50 rounded-full text-brand-600">
+                <User size={18} />
+              </div>
+              <ChevronDown size={14} className={`text-gray-400 transition-transform ${isMenuOpen ? 'rotate-180' : ''}`} />
             </button>
             
             {/* Dropdown Content */}
             {isMenuOpen && (
-              <div 
-                className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50 py-1 border border-gray-200"
-                onMouseLeave={closeMenu}
-              >
-                <div className="px-4 py-2 text-sm text-gray-900 font-semibold border-b bg-gray-50">
-                   Olá, {userNome?.split(' ')[0]}
+              <>
+                <div className="fixed inset-0 z-20" onClick={closeMenu}></div>
+                <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 z-30 divide-y divide-gray-100 animate-in fade-in zoom-in-95 duration-100 origin-top-right">
+                  <div className="px-4 py-3 bg-gray-50 rounded-t-lg">
+                    <p className="text-xs text-gray-500">Logado como</p>
+                    <p className="text-sm font-medium text-gray-900 truncate">{userNome}</p>
+                  </div>
+                  <div className="py-1">
+                    <button 
+                      onClick={() => { setIsSenhaModalOpen(true); closeMenu(); }}
+                      className="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-brand-50 hover:text-brand-700 transition-colors"
+                    >
+                      <KeyRound size={16} className="mr-3 text-gray-400 group-hover:text-brand-600" />
+                      Alterar Senha
+                    </button>
+                  </div>
+                  <div className="py-1 bg-gray-50 rounded-b-lg">
+                    <button 
+                      onClick={handleLogout}
+                      className="flex w-full items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                    >
+                      <LogOut size={16} className="mr-3" />
+                      Sair do Sistema
+                    </button>
+                  </div>
                 </div>
-                <button 
-                  onClick={() => { setIsSenhaModalOpen(true); closeMenu(); }}
-                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700"
-                >
-                  Alterar Senha
-                </button>
-                <button 
-                  onClick={handleLogout}
-                  className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
-                >
-                  Sair
-                </button>
-              </div>
+              </>
             )}
           </div>
         </header>
 
-        {/* Content Area */}
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4 md:p-6">
-          {children}
+        {/* Área de Conteúdo com Scroll */}
+        <main className="flex-1 overflow-auto bg-surface p-4 sm:p-6 lg:p-8 relative scroll-smooth">
+          <div className="max-w-7xl mx-auto">
+             {children}
+          </div>
         </main>
-        
-        <footer className="h-10 bg-white border-t flex items-center justify-center text-xs text-gray-500">
-            &copy; {new Date().getFullYear()} Sistema de Vendas e Comissões.
-        </footer>
       </div>
 
-      {/* --- 8. MODAL RENDERIZADO AQUI --- */}
+      {/* Modal de Alterar Senha */}
       <AlterarSenhaModal
         isOpen={isSenhaModalOpen}
         onClose={() => setIsSenhaModalOpen(false)}

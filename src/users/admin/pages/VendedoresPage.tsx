@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import DashboardLayout from '../../../layouts/DashboardLayout';
 import type { Vendedor, VendedorRequestDTO, VendedorUpdateRequestDTO } from '../types';
 import { adminService } from '../services/adminService';
@@ -30,7 +31,7 @@ export default function VendedoresPage() {
       const data = await adminService.listarVendedores();
       setVendedores(data);
     } catch (err) {
-      console.error("Erro ao buscar vendedores:", err);
+      toast.error("Erro ao buscar vendedores.");  
     } finally {
       setLoading(false);
     }
@@ -81,8 +82,9 @@ export default function VendedoresPage() {
       await fetchVendedores();
       handleCloseModal();
     } catch (err: any) {
-      setFormError(err.response?.data?.message || `Erro ao salvar vendedor.`);
+      toast.error(err.response?.data?.message || `Erro ao salvar vendedor.`);
     } finally {
+      toast.success("Vendedor salvo com sucesso!");
       setFormLoading(false);
     }
   };

@@ -1,6 +1,7 @@
 // src/users/admin/pages/EmpresaAdminPage.tsx
 
 import { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 import DashboardLayout from '../../../layouts/DashboardLayout'; 
 import type { AdminEmpresa, AdminEmpresaCreateDTO, AdminEmpresaUpdateDTO } from '../types';
 import { adminService } from '../services/adminService';
@@ -26,8 +27,7 @@ export default function GerenciarUsuariosAdminPage() {
             const data = await adminService.listarAdminsDaEmpresa();
             setUsuariosAdmin(data);
         } catch (err: any) {
-            console.error('Erro ao listar usuários admin:', err);
-            setError('Não foi possível carregar a lista de usuários.');
+            toast.error("Erro ao buscar usuários admin.");
         } finally {
             setLoading(false);
         }
@@ -74,8 +74,9 @@ export default function GerenciarUsuariosAdminPage() {
             handleCloseModal(); // Fecha modal
         } catch (err: any) {
              const msg = err.response?.data?.message || `Erro ao ${editandoUsuario ? 'atualizar' : 'criar'} usuário. Verifique os dados.`;
-             setFormError(msg);
+             toast.error(msg);
         } finally {
+            toast.success(`Usuário ${editandoUsuario ? 'atualizado' : 'criado'} com sucesso!`);
             setFormLoading(false);
         }
     };

@@ -17,6 +17,7 @@ import GerenciarUsuariosAdminPage from './users/admin/pages/EmpresaAdminPage';
 import MinhasVendasPage from './users/vendedores/pages/MinhasVendasPage';
 import LancarMinhaVendaPage from './users/vendedores/pages/LancarMinhaVendaPage';
 import MeusModulosPage from './pages/Modulos';
+import { Toaster } from 'react-hot-toast';
 
 // Define os papéis para uso nas rotas
 const ROLES = {
@@ -34,6 +35,7 @@ function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
+        <Toaster position="top-right" />
         <Routes>
           {/* ... (Rotas Públicas, Super Admin, Admin /vendedores) ... */}
           <Route path="/" element={<Login />} />

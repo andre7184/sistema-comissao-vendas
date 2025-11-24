@@ -1,6 +1,7 @@
 // src/users/admin/pages/EmpresaHomePage.tsx
 
 import { useEffect, useState, useContext, useMemo } from 'react';
+import toast from 'react-hot-toast';
 import DashboardLayout from '../../../layouts/DashboardLayout';
 import { adminService } from '../services/adminService';
 import type { EmpresaInfo, ModuloDetalhe } from '../types';
@@ -28,8 +29,7 @@ export default function EmpresaHomePage() {
                 setEmpresaInfo(info);
                 setModulosCatalogo(catalogo);
             } catch (e: any) {
-                console.error("Erro ao carregar dados da home da empresa:", e);
-                setError('Não foi possível carregar os dados da empresa e módulos. Verifique a API.');
+                toast.error("Erro ao carregar dados da home da empresa.");
             } finally {
                 setLoading(false);
             }

@@ -1,19 +1,26 @@
 // src/config/navigationConfig.tsx
 
-import { useMemo, useState, type ReactNode } from 'react';
+import { useMemo, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { ROLES, MODULES, type AllowedRoleType } from './constants';
 import { comissaoCoreNavItems } from '../modulos/comissao-core/ComissaoCoreMenu';
-// Ícones definidos localmente (ajuste conforme necessário)
-const IconUsersAdmin = () => <span>👨‍💼</span>;
-const IconHome = () => <span>🏠</span>;
-const IconModulo = () => <span>📦</span>;
-const IconEmpresa = () => <span>🏢</span>;
-const IconVenda = () => <span>💰</span>; // Ícone para "Minhas Vendas" do Vendedor
 
-// --- Tipagem do Item de Navegação (com groupLabel opcional) ---
+// --- 1. NOVOS ÍCONES (LUCIDE REACT) ---
+import { 
+  LayoutDashboard, 
+  Users, 
+  Building2, 
+  PackageSearch, 
+  Wallet, 
+  BadgeDollarSign,
+  ChevronDown, 
+  Folder,
+  AlertCircle
+} from 'lucide-react';
+
+// Tipagem atualizada para aceitar componente React em vez de função que retorna JSX
 export interface NavItem {
-  icon: () => ReactNode;
+  icon: React.ElementType; 
   label: string;
   path: string;
   roles: AllowedRoleType[];
@@ -26,28 +33,29 @@ interface FilterProps {
     currentPermissoes: string[] | null;
 }
 
-// --- Lista de Itens BASE (CONFORME SUA SOLICITAÇÃO) ---
+// --- 2. LISTA BASE ATUALIZADA (Com Ícones Lucide) ---
 const baseNavItems: NavItem[] = [
-    // Home do Admin
-    { icon: IconHome, label: 'Home', path: '/empresa/home', roles: [ROLES.ADMIN] },
-    { icon: IconUsersAdmin, label: 'Gerenciar Admins', path: '/empresa/admins', roles: [ROLES.ADMIN] },
+    // Admin da Empresa
+    { icon: LayoutDashboard, label: 'Visão Geral', path: '/empresa/home', roles: [ROLES.ADMIN] },
+    { icon: Users, label: 'Gerenciar Admins', path: '/empresa/admins', roles: [ROLES.ADMIN] },
+    
     // Super Admin
-    { icon: IconEmpresa, label: 'Gerenciar Empresas', path: '/empresas', roles: [ROLES.SUPER_ADMIN] },
-    { icon: IconModulo, label: 'Catálogo de Módulos', path: '/modulos', roles: [ROLES.SUPER_ADMIN] },
+    { icon: Building2, label: 'Gerenciar Empresas', path: '/empresas', roles: [ROLES.SUPER_ADMIN] },
+    { icon: PackageSearch, label: 'Catálogo de Módulos', path: '/modulos', roles: [ROLES.SUPER_ADMIN] },
+    
     // Vendedor
-    { icon: IconVenda, label: 'Histórico e Comissões', path: '/portal-vendas', roles: [ROLES.VENDEDOR] },
-    { icon: IconVenda, label: 'Lançar Minha Venda', path: '/portal-vendas/lancar', roles: [ROLES.VENDEDOR] },
+    { icon: Wallet, label: 'Minhas Vendas', path: '/portal-vendas', roles: [ROLES.VENDEDOR] },
+    { icon: BadgeDollarSign, label: 'Lançar Venda', path: '/portal-vendas/lancar', roles: [ROLES.VENDEDOR] },
 ];
 
-// --- Lista COMPLETA (Base + Módulos) ---
+// --- Lista COMPLETA ---
 const allNavItems: NavItem[] = [
     ...baseNavItems,
     ...comissaoCoreNavItems,
 ];
 
-// --- Hook de Filtro para o Menu (LÓGICA ANTERIOR MANTIDA) ---
+// --- Hook de Filtro (SUA LÓGICA ORIGINAL MANTIDA) ---
 export function useFilteredNavItems({ currentRole, currentPermissoes }: FilterProps): NavItem[] {
-
   const filteredItems = useMemo(() => {
     if (!currentRole) return [];
 
@@ -55,35 +63,27 @@ export function useFilteredNavItems({ currentRole, currentPermissoes }: FilterPr
     const permissoesSet = new Set(currentPermissoes || []);
     const hasComissaoModule = permissoesSet.has(MODULES.COMISSOES);
 
-    // Filtra todos os itens que o Role PODE ver
     const roleAllowedItems = allNavItems.filter(item => item.roles.includes(roleAsLiteral));
 
-    // Lógica Específica para ADMIN
     if (roleAsLiteral === ROLES.ADMIN) {
       if (hasComissaoModule) {
-        // Se tem o módulo, retorna itens DO módulo + itens base SEM módulo (agora só '/empresa/home')
         return roleAllowedItems.filter(item => item.module === MODULES.COMISSOES || !item.module);
       } else {
-        // Se NÃO tem o módulo, retorna APENAS itens base SEM módulo (agora só '/empresa/home')
         return roleAllowedItems.filter(item => !item.module);
       }
     }
-    // Lógica Padrão para outros Roles
     else {
-      // Filtra com base no role e verifica o módulo APENAS se o item o exigir
       return roleAllowedItems.filter(item => {
           if (item.module) return permissoesSet.has(item.module);
           return true;
       });
     }
-
   }, [currentRole, currentPermissoes]);
 
   return filteredItems;
 }
 
-
-// --- Componente de Renderização dos Links (SidebarMenu - LÓGICA DE GRUPO MANTIDA) ---
+// --- Componente SidebarMenu (DESIGN PROFISSIONAL APLICADO) ---
 
 interface SidebarMenuProps {
     filteredItems: NavItem[];
@@ -91,13 +91,16 @@ interface SidebarMenuProps {
 }
 
 export const SidebarMenu = ({ filteredItems, currentRole }: SidebarMenuProps) => {
-    const activeLinkClass = "bg-blue-100 text-blue-700";
-    const inactiveLinkClass = "text-gray-600 hover:bg-gray-100 hover:text-gray-900";
-    // Classes base
-    const baseLinkClass = "flex items-center space-x-3 p-3 rounded-lg text-base font-medium transition duration-150 ease-in-out";
-    const baseGroupClass = "flex items-center space-x-3 p-3 rounded-lg text-base font-semibold transition duration-150 ease-in-out w-full justify-between cursor-pointer";
-    // Classes para subitens (com recuo)
-    const subItemBaseClass = "flex items-center space-x-2 p-2 rounded-md text-sm font-medium transition duration-150 ease-in-out ml-4";
+    // --- NOVOS ESTILOS (Brand Colors & Bordas) ---
+    const activeLinkClass = "bg-brand-50 text-brand-700 border-r-4 border-brand-600"; 
+    const inactiveLinkClass = "text-gray-600 hover:bg-gray-50 hover:text-gray-900 border-r-4 border-transparent";
+    
+    const baseLinkClass = "flex items-center gap-3 p-3 text-sm font-medium transition-all duration-200";
+    // Estilo para cabeçalho de grupo
+    const baseGroupClass = "flex items-center justify-between w-full p-3 mt-4 text-xs font-bold text-gray-400 uppercase tracking-wider hover:text-brand-600 transition-colors";
+    
+    // Recuo para subitens
+    const subItemBaseClass = "flex items-center gap-3 p-2 pl-9 text-sm font-medium transition-all duration-200";
 
     const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() => {
         const initialState: Record<string, boolean> = {};
@@ -114,51 +117,58 @@ export const SidebarMenu = ({ filteredItems, currentRole }: SidebarMenuProps) =>
     const toggleGroup = (label: string) => { setOpenGroups(prev => ({ ...prev, [label]: !prev[label] })); };
 
     return (
-        <nav className="space-y-1 px-1">
-            {/* 1. Renderiza itens NÃO agrupados */}
+        <nav className="flex flex-col space-y-1">
+            {/* 1. Itens NÃO agrupados */}
             {groupedItems.ungrouped.map(item => (
                 <NavLink
                     key={item.path}
                     to={item.path}
-                    // 'end' é importante para a rota exata da home do admin
                     end={item.path === '/empresa/home'}
                     className={({ isActive }) => `${baseLinkClass} ${isActive ? activeLinkClass : inactiveLinkClass}`}
                 >
-                    {item.icon()}
+                    {/* Renderiza o ícone Lucide */}
+                    <item.icon size={20} strokeWidth={1.5} />
                     <span>{item.label}</span>
                 </NavLink>
             ))}
 
-            {/* 2. Renderiza itens AGRUPADOS */}
+            {/* 2. Itens AGRUPADOS */}
             {Object.entries(groupedItems.groups).map(([groupLabel, items]) => {
                 const isOpen = openGroups[groupLabel] ?? true;
-                const GroupIcon = (() => <span>📁</span>);
                 return (
-                    <div key={groupLabel}>
-                        <button onClick={() => toggleGroup(groupLabel)} className={`${baseGroupClass} ${inactiveLinkClass}`} >
-                             <span className="flex items-center space-x-2"> <GroupIcon /> <span>{groupLabel}</span> </span>
-                             <span className={`transform transition-transform duration-200 ${isOpen ? 'rotate-180' : 'rotate-0'}`}> ▼ </span>
+                    <div key={groupLabel} className="border-t border-gray-100 mt-2 pt-1">
+                        <button onClick={() => toggleGroup(groupLabel)} className={baseGroupClass}>
+                             <span className="flex items-center gap-2"> 
+                                <Folder size={14} /> 
+                                <span>{groupLabel}</span> 
+                             </span>
+                             <ChevronDown size={14} className={`transform transition-transform duration-200 ${isOpen ? 'rotate-180' : 'rotate-0'}`} />
                         </button>
-                        {isOpen && (
-                            <div className="pt-1 space-y-1">
-                                {items.map(item => ( 
-                                    <NavLink key={item.path} 
-                                        to={item.path} 
-                                        end={item.path === '/empresa/dashboard'} 
-                                        className={({ isActive }) => `${subItemBaseClass} ${isActive ? activeLinkClass : inactiveLinkClass}`}>
-                                        {item.icon()} 
-                                        <span>{item.label}</span> 
-                                    </NavLink> 
-                                ))}
-                            </div>
-                        )}
+                        
+                        <div className={`overflow-hidden transition-all duration-300 ${isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
+                            {items.map(item => ( 
+                                <NavLink key={item.path} 
+                                    to={item.path} 
+                                    end={item.path === '/empresa/dashboard'} 
+                                    className={({ isActive }) => `${subItemBaseClass} ${isActive ? activeLinkClass : inactiveLinkClass}`}>
+                                    <item.icon size={18} /> 
+                                    <span>{item.label}</span> 
+                                </NavLink> 
+                            ))}
+                        </div>
                     </div>
                 );
             })}
 
-            {/* Mensagem de Módulo Inativo */}
+            {/* Mensagem de Módulo Inativo (Estilizada) */}
             {currentRole === ROLES.ADMIN && !filteredItems.some(i => i.module === MODULES.COMISSOES) && (
-                 <div className='p-3 text-xs text-red-600 bg-red-50 rounded-md mt-4 border border-red-200'> Módulo 'Comissões Core' não está ativo. </div>
+                 <div className='mx-3 mt-6 p-3 bg-red-50 border border-red-100 rounded-lg flex items-start gap-2'>
+                    <AlertCircle className="text-red-500 mt-0.5" size={16} />
+                    <div>
+                        <p className="text-xs font-bold text-red-700">Módulo Inativo</p>
+                        <p className="text-[10px] text-red-600 leading-tight mt-1">Contrate 'Comissões Core' para acessar vendas.</p>
+                    </div>
+                 </div>
             )}
         </nav>
     );

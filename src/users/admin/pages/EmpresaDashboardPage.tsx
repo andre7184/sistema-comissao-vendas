@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
+import toast from 'react-hot-toast';
 import DashboardLayout from '../../../layouts/DashboardLayout';
 import { adminService } from '../services/adminService';
 import type { Venda, EmpresaDashboardData } from '../types';
@@ -66,8 +67,7 @@ export default function EmpresaDashboardPage() {
                 setData(dashboardResult);
                 setVendas(todasVendas);
             } catch (e: any) {
-                console.error("Erro ao buscar dashboard:", e);
-                setError('Não foi possível carregar os dados.');
+                toast.error("Erro ao carregar dados do dashboard.");
             } finally {
                 setLoading(false);
             }

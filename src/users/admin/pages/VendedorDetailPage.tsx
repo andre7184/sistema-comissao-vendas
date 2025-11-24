@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import DashboardLayout from '../../../layouts/DashboardLayout';
 import type { VendedorDetalhado } from '../types';
 import { adminService } from '../services/adminService';
@@ -92,8 +93,7 @@ export default function VendedorDetailPage() {
             const data = await adminService.buscarDetalhesVendedor(idVendedor);
             setVendedor(data);
         } catch (err) {
-            console.error("Erro ao buscar detalhes do vendedor:", err);
-            setError('Não foi possível carregar os detalhes do vendedor.');
+            toast.error("Erro ao carregar os detalhes do vendedor.");
         } finally {
             setLoading(false);
         }
@@ -114,6 +114,7 @@ export default function VendedorDetailPage() {
             fetchVendedorDetalhes(); // Recarrega os dados na tela
             setIsModalOpen(false);
         } catch (e: any) {
+            toast.error("Erro ao atualizar dados do vendedor." + (e.response?.data?.message || ""));
             const errorMsg = e.response?.data?.message || 'Erro ao atualizar dados do vendedor.';
             setFormError(errorMsg);
         } finally {
@@ -144,8 +145,7 @@ export default function VendedorDetailPage() {
                 senha: res.senhaTemporaria
             });
         } catch (err) {
-            console.error('Erro ao resetar senha:', err);
-            alert('Erro ao resetar a senha. Verifique o console ou tente novamente.');
+            toast.error("Erro ao resetar a senha do vendedor.");
             setIsResetConfirmOpen(false);
         } finally {
             setResetLoading(false);

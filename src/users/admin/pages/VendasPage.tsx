@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import toast from 'react-hot-toast';
+
 import DashboardLayout from '../../../layouts/DashboardLayout';
 import type { Venda, Vendedor, VendaRequestDTO, VendaUpdateRequestDTO } from '../types';
 import { adminService } from '../services/adminService';
@@ -7,6 +9,7 @@ import GenericFormModal from '../../../components/GenericFormModal';
 import ConfirmationModal from '../../../components/ConfirmationModal';
 import VendaForm from '../components/VendaForm';
 import { formatarParaMoeda } from '../../../utils/formatters';
+
 
 const formatarData = (dataISO: string) => {
   try {
@@ -50,8 +53,9 @@ export default function VendasPage() {
       setVendas(vendasData);
       setVendedores(vendedoresData);
     } catch (err) {
-      console.error("Erro ao buscar dados:", err);
+      toast.error("Erro ao buscar vendas");
     } finally {
+      toast.success("Vendas carregadas com sucesso!");
       setLoading(false);
     }
   };
@@ -86,7 +90,9 @@ export default function VendasPage() {
       handleCloseModal();
     } catch (err: any) {
       setFormError(err.response?.data?.message || `Erro ao salvar.`);
+      toast.error(err.response?.data?.message || `Erro ao salvar.`);
     } finally {
+      toast.success("Venda salva com sucesso!");
       setFormLoading(false);
     }
   };
@@ -102,8 +108,9 @@ export default function VendasPage() {
         await fetchData();
         setConfirmAction(null);
     } catch (error: any) {
-        alert(error.response?.data?.message || "Erro na ação.");
+        toast.error("Erro na ação: " + (error.response?.data?.message || ""));
     } finally {
+        toast.success("Venda Confirmada com sucesso!");
         setActionLoading(false);
     }
   };

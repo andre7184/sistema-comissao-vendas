@@ -1,19 +1,46 @@
+// src/components/SuperAdminDashboard.tsx
+
 import { Link } from 'react-router-dom';
+import { Building2, PackageSearch, ArrowRight } from 'lucide-react';
 
 export default function SuperAdminDashboard() {
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-4 text-blue-700">Painel Super Administrador</h2>
-      <p className='mb-6'>Acesso a todas as funções de catálogo e gerenciamento de empresas.</p>
+      <header className="mb-8">
+        <h2 className="text-2xl font-bold text-gray-800">Painel Super Administrador</h2>
+        <p className='text-gray-500 mt-1'>Gerenciamento global de tenants (empresas) e catálogo de produtos.</p>
+      </header>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Link to="/empresas" className="p-6 bg-green-100 rounded-lg shadow hover:bg-green-200 transition">
-          <h3 className="text-xl font-semibold text-green-800">Gerenciar Empresas-Clientes</h3>
-          <p className="text-sm text-green-600">Criação e gerenciamento de Tenants, incluindo CNPJ e Admin inicial.</p>
+        
+        {/* Card Empresas */}
+        <Link to="/empresas" className="group block bg-white border border-gray-200 rounded-xl p-6 hover:border-brand-300 hover:shadow-md transition-all duration-200">
+          <div className="flex items-start justify-between">
+            <div className="p-3 bg-blue-50 text-blue-600 rounded-lg group-hover:bg-blue-100 transition-colors">
+                <Building2 size={28} />
+            </div>
+            <ArrowRight className="text-gray-300 group-hover:text-brand-500 transition-colors" />
+          </div>
+          <h3 className="mt-4 text-lg font-semibold text-gray-800 group-hover:text-brand-600">Gerenciar Empresas-Clientes</h3>
+          <p className="mt-2 text-sm text-gray-500 leading-relaxed">
+            Criação e onboarding de novos Tenants. Gerencie CNPJs, status e administradores iniciais.
+          </p>
         </Link>
-        <Link to="/modulos" className="p-6 bg-blue-100 rounded-lg shadow hover:bg-blue-200 transition">
-          <h3 className="text-xl font-semibold text-blue-800">Gerenciar Catálogo de Módulos</h3>
-          <p className="text-sm text-blue-600">Cadastro e gestão de módulos SaaS (Chaves, Preços, Status).</p>
+
+        {/* Card Módulos */}
+        <Link to="/modulos" className="group block bg-white border border-gray-200 rounded-xl p-6 hover:border-purple-300 hover:shadow-md transition-all duration-200">
+          <div className="flex items-start justify-between">
+            <div className="p-3 bg-purple-50 text-purple-600 rounded-lg group-hover:bg-purple-100 transition-colors">
+                <PackageSearch size={28} />
+            </div>
+            <ArrowRight className="text-gray-300 group-hover:text-purple-500 transition-colors" />
+          </div>
+          <h3 className="mt-4 text-lg font-semibold text-gray-800 group-hover:text-purple-600">Catálogo de Módulos SaaS</h3>
+          <p className="mt-2 text-sm text-gray-500 leading-relaxed">
+            Configure os produtos disponíveis para venda. Defina chaves de acesso, preços e status.
+          </p>
         </Link>
+
       </div>
     </div>
   );

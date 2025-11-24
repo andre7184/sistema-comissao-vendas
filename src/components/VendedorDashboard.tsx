@@ -1,24 +1,46 @@
 // src/components/VendedorDashboard.tsx
 
 import { Link } from 'react-router-dom';
+import { Wallet, PlusCircle, ArrowRight } from 'lucide-react';
 
 export default function VendedorDashboard() {
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-4 text-green-700">Portal do Vendedor</h2>
-      <p className='mb-6'>Acesso restrito para lançar e monitorar suas vendas e comissões. </p>
+      <header className="mb-8">
+        <h2 className="text-2xl font-bold text-gray-800">Portal do Vendedor</h2>
+        <p className='text-gray-500 mt-1'>Acompanhe seu desempenho e registre suas vendas.</p>
+      </header>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         
-        {/* Lançamento Rápido de Venda */}
-        <Link to="/portal-vendas/lancar" className="p-6 bg-blue-100 rounded-lg shadow hover:bg-blue-200 transition">
-          <h3 className="text-xl font-semibold text-blue-800">Lançar Nova Venda</h3>
-          <p className="text-sm text-blue-600">Registre rapidamente uma nova venda (Status PENDENTE).</p>
+        {/* Lançamento Rápido */}
+        <Link to="/portal-vendas/lancar" className="group relative overflow-hidden bg-brand-600 rounded-xl p-6 text-white shadow-lg hover:bg-brand-700 transition-all duration-200">
+          <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white opacity-10 rounded-full"></div>
+          <div className="relative z-10 flex flex-col h-full justify-between">
+            <div className="flex justify-between items-start">
+                <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
+                    <PlusCircle size={28} />
+                </div>
+            </div>
+            <div className="mt-4">
+                <h3 className="text-xl font-bold">Lançar Nova Venda</h3>
+                <p className="text-brand-100 text-sm mt-1">Registre uma venda rapidamente para aprovação.</p>
+            </div>
+          </div>
         </Link>
 
-        {/* Listagem e Histórico Principal */}
-        <Link to="/portal-vendas" className="p-6 bg-green-100 rounded-lg shadow hover:bg-green-200 transition">
-          <h3 className="text-xl font-semibold text-green-800">Histórico de Vendas e Comissões</h3>
-          <p className="text-sm text-green-600">Visualize todas as suas vendas e o valor da comissão calculado.</p>
+        {/* Histórico */}
+        <Link to="/portal-vendas" className="group block bg-white border border-gray-200 rounded-xl p-6 hover:border-green-300 hover:shadow-md transition-all duration-200">
+          <div className="flex items-start justify-between">
+            <div className="p-3 bg-green-50 text-green-600 rounded-lg group-hover:bg-green-100 transition-colors">
+                <Wallet size={28} />
+            </div>
+            <ArrowRight className="text-gray-300 group-hover:text-green-500 transition-colors" />
+          </div>
+          <h3 className="mt-4 text-lg font-semibold text-gray-800 group-hover:text-green-700">Minhas Comissões</h3>
+          <p className="mt-2 text-sm text-gray-500 leading-relaxed">
+            Visualize histórico completo, status de aprovação e valores a receber.
+          </p>
         </Link>
 
       </div>

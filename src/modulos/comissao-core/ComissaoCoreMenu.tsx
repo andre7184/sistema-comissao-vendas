@@ -1,47 +1,40 @@
 // src/modules/comissao-core/ComissaoCoreMenu.tsx
 
-// Importa NavItem de navigationConfig
 import type { NavItem } from '../../config/navigationConfig'; 
-// Importa ROLES e MODULES do arquivo constants
 import { ROLES, MODULES } from '../../config/constants'; 
 
-// --- Definição LOCAL dos Ícones usados neste módulo ---
-const IconVendedor = () => <span>👥</span>;
-const IconVenda = () => <span>🏦</span>;
-const IconDashboard = () => <span>📊</span>; 
-// =======================================================
+// --- 1. NOVOS ÍCONES (LUCIDE) ---
+import { 
+    LayoutDashboard, 
+    Users, 
+    BadgeDollarSign 
+} from 'lucide-react';
 
-// Define o título do grupo
-const GROUP_LABEL = "Comissões";
+const GROUP_LABEL = "Gestão de Comissões";
 
-/**
- * Define e exporta os itens de menu específicos do módulo COMISSAO_CORE.
- */
 export const comissaoCoreNavItems: NavItem[] = [
     { 
-        // ATENÇÃO: Verifique se a rota '/empresa/dashboard' está correta para o Dashboard Gerencial.
-        // Se for '/admin-dashboard', corrija aqui.
         path: "/empresa/dashboard",        
         label: "Dashboard Gerencial",        
-        icon: IconDashboard,             
+        icon: LayoutDashboard, // Passa o componente direto            
         roles: [ROLES.ADMIN],            
         module: MODULES.COMISSOES,
-        groupLabel: GROUP_LABEL // <-- ADICIONADO       
+        groupLabel: GROUP_LABEL       
     },
     { 
         path: "/vendedores",             
-        label: "Gerenciar Vendedores",   
-        icon: IconVendedor,              
+        label: "Vendedores",   
+        icon: Users,              
         roles: [ROLES.ADMIN],            
         module: MODULES.COMISSOES,
-        groupLabel: GROUP_LABEL // <-- ADICIONADO       
+        groupLabel: GROUP_LABEL       
     },
     { 
         path: "/vendas",                 
-        label: "Gerenciar Vendas",      
-        icon: IconVenda,                 
+        label: "Vendas e Aprovações",      
+        icon: BadgeDollarSign,                 
         roles: [ROLES.ADMIN],            
         module: MODULES.COMISSOES,
-        groupLabel: GROUP_LABEL // <-- ADICIONADO        
+        groupLabel: GROUP_LABEL        
     },
 ];
