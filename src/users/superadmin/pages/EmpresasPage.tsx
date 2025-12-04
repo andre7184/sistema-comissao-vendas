@@ -194,7 +194,7 @@ export default function EmpresasPage() {
                                 <div className='flex-1 min-w-[250px] space-y-1'>
                                     <strong className="text-lg text-gray-800">{empresa.nomeFantasia}</strong> 
                                     <p className="text-sm text-gray-600">CNPJ: {formatarCnpj(empresa.cnpj)}</p>
-                                    <p className="text-xs text-gray-500">Cadastro: {formatarDataSimples(empresa.dataCadastro)} (ID: {empresa.id})</p>
+                                    <p className="text-xstext-brand-500">Cadastro: {formatarDataSimples(empresa.dataCadastro)} (ID: {empresa.id})</p>
                                     
                                     {/* Exibição dos Admins */}
                                     <div className="pt-1">
@@ -207,7 +207,7 @@ export default function EmpresasPage() {
                                                     </span>
                                                 ))}
                                             </div>
-                                        ) : ( <p className="text-xs text-gray-400 italic">Nenhum admin associado</p> )}
+                                        ) : ( <p className="text-xstext-brand-500 italic">Nenhum admin associado</p> )}
                                     </div>
                                 </div>
                                 

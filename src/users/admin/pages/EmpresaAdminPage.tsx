@@ -110,7 +110,7 @@ export default function GerenciarUsuariosAdminPage() {
                         </thead>
                         <tbody className="divide-y divide-gray-200">
                             {usuariosAdmin.length === 0 && (
-                                <tr><td colSpan={3} className="p-4 text-center text-gray-500">Nenhum usuário admin encontrado.</td></tr>
+                                <tr><td colSpan={3} className="p-4 text-centertext-brand-500">Nenhum usuário admin encontrado.</td></tr>
                             )}
                             {usuariosAdmin.map(usuario => (
                                 <tr key={usuario.id}>

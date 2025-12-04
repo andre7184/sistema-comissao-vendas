@@ -101,7 +101,7 @@ export default function AdminForm({ initialData, onSubmit, loading, error }: Adm
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email (Login)</label>
                 <input id="email" type="email" {...register('email')} disabled={isEditing} className={`input-form w-full mt-1 ${errors.email ? 'border-red-500' : 'border-gray-300'} ${isEditing ? 'bg-gray-100 cursor-not-allowed' : ''}`} />
                 {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>}
-                {isEditing && <p className="text-xs text-gray-500 mt-1">O email não pode ser alterado após o cadastro.</p>}
+                {isEditing && <p className="text-xstext-brand-500 mt-1">O email não pode ser alterado após o cadastro.</p>}
             </div>
 
             {/* Senha (Apenas na Criação) */}

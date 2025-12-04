@@ -149,7 +149,7 @@ export default function ModulosPage() {
                 <tr key={modulo.id}>
                   <td className="td-cell">
                     <div className="font-medium text-gray-900">{modulo.nome}</div>
-                    <div className="text-xs text-gray-500">{modulo.chave}</div>
+                    <div className="text-xstext-brand-500">{modulo.chave}</div>
                   </td>
                   <td className="td-cell">
                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getStatusClass(modulo.status)}`}>

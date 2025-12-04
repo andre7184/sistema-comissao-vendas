@@ -145,7 +145,7 @@ export default function VendasPage() {
       </div>
 
       {loading ? (
-        <p className="text-center py-8 text-gray-500">Carregando vendas...</p>
+        <p className="text-center py-8text-brand-500">Carregando vendas...</p>
       ) : (
         <div className="bg-white shadow rounded-lg overflow-hidden">
           <div className="overflow-x-auto">
@@ -169,10 +169,10 @@ export default function VendasPage() {
                         <td className="td-cell">
                         <button onClick={() => goToVendedor(venda.vendedor.idVendedor)} className="text-left hover:bg-gray-100 p-1 rounded -ml-1 transition">
                             <div className="font-medium text-indigo-600 hover:underline">{venda.vendedor.nome}</div>
-                            <div className="text-xs text-gray-500">{venda.vendedor.email}</div>
+                            <div className="text-xstext-brand-500">{venda.vendedor.email}</div>
                         </button>
                         </td>
-                        <td className="td-cell text-gray-500 text-sm max-w-[200px] truncate" title={venda.descricaoVenda}>{venda.descricaoVenda || '-'}</td>
+                        <td className="td-celltext-brand-500 text-sm max-w-[200px] truncate" title={venda.descricaoVenda}>{venda.descricaoVenda || '-'}</td>
                         <td className="td-cell text-green-600 font-medium">{formatarParaMoeda(venda.valorVenda)}</td>
                         <td className="td-cell text-blue-600 font-medium">{formatarParaMoeda(venda.valorComissaoCalculado)}</td>
                         
@@ -223,7 +223,7 @@ export default function VendasPage() {
                     ))
                 ) : (
                     <tr>
-                        <td colSpan={7} className="p-8 text-center text-gray-500">
+                        <td colSpan={7} className="p-8 text-centertext-brand-500">
                             Nenhuma venda encontrada.
                         </td>
                     </tr>

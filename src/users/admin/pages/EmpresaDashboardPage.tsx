@@ -22,12 +22,12 @@ interface MetricCardProps {
 const MetricCard = ({ title, value, colorClass, borderColorClass, subTitle, link }: MetricCardProps) => (
     <div className={`bg-white p-6 rounded-lg shadow-md border-t-4 ${borderColorClass} flex justify-between items-start`}>
         <div>
-            <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">{title}</p>
+            <p className="text-sm font-mediumtext-brand-500 uppercase tracking-wide">{title}</p>
             <p className={`mt-2 text-3xl font-bold ${colorClass}`}>
                 {value}
             </p>
             {subTitle && (
-                <p className="text-xs text-gray-500 mt-1 font-medium">
+                <p className="text-xstext-brand-500 mt-1 font-medium">
                     {subTitle}
                 </p>
             )}
@@ -192,7 +192,7 @@ export default function EmpresaDashboardPage() {
                                                 >
                                                     {item.nomeVendedor}
                                                 </button>
-                                                <span className="text-xs text-gray-500">{item.qtdVendas} vendas</span>
+                                                <span className="text-xstext-brand-500">{item.qtdVendas} vendas</span>
                                             </div>
                                         </div>
                                         <span className="font-bold text-green-600 text-sm">
@@ -222,7 +222,7 @@ export default function EmpresaDashboardPage() {
                 {metrics.ultimasVendas?.length > 0 ? (
                     <div className="overflow-x-auto">
                         <table className="w-full text-sm text-left">
-                            <thead className="bg-gray-50 text-gray-500">
+                            <thead className="bg-gray-50text-brand-500">
                                 <tr>
                                     <th className="py-2 px-4">Vendedor</th>
                                     <th className="py-2 px-4">Valor</th>
@@ -234,7 +234,7 @@ export default function EmpresaDashboardPage() {
                                     <tr key={venda.idVenda} className="hover:bg-gray-50">
                                         <td className="py-2 px-4 font-medium text-gray-900">{venda.nomeVendedor}</td>
                                         <td className="py-2 px-4 text-green-600 font-bold">{formatarParaMoeda(venda.valorVenda)}</td>
-                                        <td className="py-2 px-4 text-gray-500">{new Date(venda.dataVenda).toLocaleDateString('pt-BR')}</td>
+                                        <td className="py-2 px-4text-brand-500">{new Date(venda.dataVenda).toLocaleDateString('pt-BR')}</td>
                                     </tr>
                                 ))}
                             </tbody>

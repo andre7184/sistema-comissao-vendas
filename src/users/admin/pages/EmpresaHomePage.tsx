@@ -96,7 +96,7 @@ export default function EmpresaHomePage() {
                             <li key={modulo.id} className="py-4 flex justify-between items-center flex-wrap gap-2">
                                 <div>
                                     <p className="font-semibold text-gray-800">{modulo.nome} <span className="text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded">{modulo.chave}</span></p>
-                                    <p className="text-sm text-gray-500 mt-1">{modulo.descricaoCurta || 'Sem descrição.'}</p>
+                                    <p className="text-smtext-brand-500 mt-1">{modulo.descricaoCurta || 'Sem descrição.'}</p>
                                 </div>
                                 <span className="font-semibold text-green-600 bg-green-100 px-3 py-1 rounded-full text-sm whitespace-nowrap">
                                     {formatarParaMoeda(modulo.precoMensal)} / mês
@@ -123,7 +123,7 @@ export default function EmpresaHomePage() {
                             <li key={modulo.id} className="py-4 flex justify-between items-center flex-wrap gap-2">
                                 <div>
                                     <p className="font-semibold text-gray-800">{modulo.nome}</p>
-                                    <p className="text-sm text-gray-500 mt-1">{modulo.descricaoCurta || 'Sem descrição.'}</p>
+                                    <p className="text-smtext-brand-500 mt-1">{modulo.descricaoCurta || 'Sem descrição.'}</p>
                                 </div>
                                 <div className='text-right'>
                                      <span className="font-semibold text-blue-600 bg-blue-100 px-3 py-1 rounded-full text-sm block mb-1 whitespace-nowrap">

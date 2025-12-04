@@ -94,7 +94,7 @@ export default function GerenciarModulosEmpresaModal({ empresa, onClose, onSucce
               />
               <label htmlFor={`modulo-${modulo.id}`} className="ml-3 flex flex-col">
                 <span className="font-medium text-gray-900">{modulo.nome}</span>
-                <span className="text-sm text-gray-500">(R$ {modulo.precoMensal.toFixed(2)})</span>
+                <span className="text-smtext-brand-500">(R$ {modulo.precoMensal.toFixed(2)})</span>
               </label>
             </div>
           ))}

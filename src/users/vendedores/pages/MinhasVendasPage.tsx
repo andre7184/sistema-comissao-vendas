@@ -129,15 +129,15 @@ export default function MinhasVendasPage() {
       {/* --- CARDS DE RESUMO --- */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div className="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500">
-            <p className="text-sm text-gray-500">Vendas Válidas (Período)</p>
+            <p className="text-smtext-brand-500">Vendas Válidas (Período)</p>
             <p className="text-2xl font-bold text-blue-700">{resumo.qtd}</p>
         </div>
         <div className="bg-white p-4 rounded-lg shadow border-l-4 border-green-500">
-            <p className="text-sm text-gray-500">Total Vendido</p>
+            <p className="text-smtext-brand-500">Total Vendido</p>
             <p className="text-2xl font-bold text-green-700">{formatarParaMoeda(resumo.totalVendas)}</p>
         </div>
         <div className="bg-white p-4 rounded-lg shadow border-l-4 border-purple-600">
-            <p className="text-sm text-gray-500 font-semibold">Comissão Prevista</p>
+            <p className="text-smtext-brand-500 font-semibold">Comissão Prevista</p>
             <p className="text-2xl font-bold text-purple-700">{formatarParaMoeda(resumo.totalComissao)}</p>
         </div>
       </div>
@@ -193,7 +193,7 @@ export default function MinhasVendasPage() {
 
       {/* --- LISTAGEM DE VENDAS --- */}
       {loading ? (
-        <div className="text-center py-8 text-gray-500">Carregando histórico...</div>
+        <div className="text-center py-8text-brand-500">Carregando histórico...</div>
       ) : (
         <div className="bg-white shadow rounded-lg overflow-x-auto">
           <table className="w-full min-w-[700px]">
@@ -233,7 +233,7 @@ export default function MinhasVendasPage() {
                   ))
               ) : (
                   <tr>
-                      <td colSpan={5} className="p-8 text-center text-gray-500">
+                      <td colSpan={5} className="p-8 text-centertext-brand-500">
                           Nenhuma venda encontrada com os filtros selecionados.
                       </td>
                   </tr>

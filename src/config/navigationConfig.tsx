@@ -91,13 +91,18 @@ interface SidebarMenuProps {
 }
 
 export const SidebarMenu = ({ filteredItems, currentRole }: SidebarMenuProps) => {
-    // --- NOVOS ESTILOS (Brand Colors & Bordas) ---
-    const activeLinkClass = "bg-brand-50 text-brand-700 border-r-4 border-brand-600"; 
-    const inactiveLinkClass = "text-gray-600 hover:bg-gray-50 hover:text-gray-900 border-r-4 border-transparent";
+    // --- ATUALIZADO COM SUA PALETA ---
+    // Ativo: Fundo laranja bem clarinho, texto laranja forte, borda lateral laranja
+    const activeLinkClass = "bg-primary-50 text-primary-700 border-r-4 border-primary-500"; 
+    
+    // Inativo: Texto cinza (#606060 aprox), Hover cinza claro
+    const inactiveLinkClass = "text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 border-r-4 border-transparent";
+    
+    // Header do grupo
+    const baseGroupClass = "flex items-center justify-between w-full p-3 mt-4 text-xs font-bold text-neutral-400 uppercase tracking-wider hover:text-primary-600 transition-colors";
     
     const baseLinkClass = "flex items-center gap-3 p-3 text-sm font-medium transition-all duration-200";
     // Estilo para cabeçalho de grupo
-    const baseGroupClass = "flex items-center justify-between w-full p-3 mt-4 text-xs font-bold text-gray-400 uppercase tracking-wider hover:text-brand-600 transition-colors";
     
     // Recuo para subitens
     const subItemBaseClass = "flex items-center gap-3 p-2 pl-9 text-sm font-medium transition-all duration-200";
@@ -164,10 +169,7 @@ export const SidebarMenu = ({ filteredItems, currentRole }: SidebarMenuProps) =>
             {currentRole === ROLES.ADMIN && !filteredItems.some(i => i.module === MODULES.COMISSOES) && (
                  <div className='mx-3 mt-6 p-3 bg-red-50 border border-red-100 rounded-lg flex items-start gap-2'>
                     <AlertCircle className="text-red-500 mt-0.5" size={16} />
-                    <div>
-                        <p className="text-xs font-bold text-red-700">Módulo Inativo</p>
-                        <p className="text-[10px] text-red-600 leading-tight mt-1">Contrate 'Comissões Core' para acessar vendas.</p>
-                    </div>
+                    {/* ... */}
                  </div>
             )}
         </nav>

@@ -44,7 +44,7 @@ interface MetricCardProps {
 
 const MetricCard = ({ title, value, colorClass }: MetricCardProps) => (
     <div className="bg-white p-6 rounded-lg shadow-md border-t-4" style={{ borderColor: colorClass }}>
-        <p className="text-sm font-medium text-gray-500">{title}</p>
+        <p className="text-sm font-mediumtext-brand-500">{title}</p>
         <p className={`mt-1 text-3xl font-bold ${colorClass}`}>
             {value}
         </p>
@@ -179,7 +179,7 @@ export default function VendedorDetailPage() {
                 <div>
                     <h1 className="text-3xl font-extrabold text-gray-900">{nome}</h1>
                     <p className="text-lg text-gray-600">{email}</p>
-                    <p className="text-sm text-gray-500">Cadastrado em: {formatarDataCadastro(dataCadastro)}</p>
+                    <p className="text-smtext-brand-500">Cadastrado em: {formatarDataCadastro(dataCadastro)}</p>
                 </div>
                 
                 <div className="flex flex-col gap-3 items-end">
